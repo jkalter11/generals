@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Generals Online</title>
+<link rel="icon" href="themes/icon.ico">
+<link rel="stylesheet" href="themes/default/redcat-msgbox.css">
+<link rel="stylesheet" href="themes/default/styles.css">
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<meta http-equiv="description" content="The Generals Online - Originally, a Filipino-invented board game.">
+<meta http-equiv="author" content="Marjun Tacder">
+</head>
+<body>
+<div class="container">
+    <div class="header"><a href="/index.html"></a></div>
+    <div class="content"></div>
+    <div class="footer">
+        <div class="author-links">
+            <a href="http://en.wikipedia.org/wiki/Game_of_the_Generals">About GG</a> &bull;
+            <a href="http://twitter.com/mttacder13">Twitter</a> &bull;
+            <a href="http://gplus.to/mttacder13">Google+</a> &bull;
+            <a href="http://mttacder13.blogspot.com">Blogger</a> &bull;
+            <a href="http://mttacder13.bitbucket.org">Open Source</a>
+        </div>
+        <div class="copyright">&copy; 2013 Marjun T. Tacder</div>
+        <div class="misc-attributions">
+            <h4>Powered by:</h4>
+            <div><a href="http://nodejs.org/"><img src="themes/node.js.png" alt="Node.js"></a></div>
+            <div><a href="http://socket.io/"><img src="themes/socket.io.png" alt="Socket.IO"></a></div>
+            <div><a href="http://expressjs.com/"><img src="themes/express.png" alt="Expressjs"></a></div>
+            <div><a href="http://jquery.com/"><img src="themes/jQuery.png" alt="jQuery"></a></div>
+            <div><a href="http://handlebarsjs.com/"><img src="themes/Handlebarsjs.png" alt="Handlebarsjs"></a>
+            </div>
+        </div>
+    </div>
+</div>
+<script id="welcome-template" type="text/template">
+    <div class="game-menu">
+        <input id="player-name-input" type="text" placeholder="{{{playerNameInputPlaceHolder}}}">
+        <hr>
+        <h3>{{{createNewGameHeader}}}</h3>
+        <p>{{{createGameDescription}}}</p>
+        <button class="button" id="create-game">{{{createGameButton}}}</button>
+        <hr>
+        <h3>{{{joinGameHeader}}}</h3>
+        <p>{{{joinGameDescription}}}</p>
+        <input type="text" id="game-id-input" placeholder="{{{gameIdInputPlaceHolder}}}">
+        <button class="button" id="join-game">{{{joinGameButton}}}</button>
+    </div>
+    <div class="game-info">
+        <h2>{{{gameInfoMainHeader}}}</h2>
+        <h4>{{{gameInfoAboutHeader}}}</h4>
+        <p>{{{gameInfoAboutDescription}}}</p>
+        <h4>{{{gameInfoAboutOnlineHeader}}}</h4>
+        <p>{{{gameInfoAboutOnlineDescription}}}</p>
+    </div>
+</script>
+<script id="game-template" type="text/template">
+    <h4 class="game-message"></h4>
+    <div id="game-board-header">
+        <input class="game-id" type="text" readonly>
+        <button id="new-game" class="button">{{newGameButton}}</button>
+        <button id="view-cheat-sheet" class="button">{{viewCheatSheetButton}}</button>
+        <button id="ready" class="button">{{readyButton}}</button>
+    </div>
+    <div class="game-board-container">
+        <div id="fallen-pieces"></div>
+        <table id="game-board"></table>
+    </div>
+</script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="libs/handlebars-v1.1.2.js"></script>
+<script src="libs/jquery-1.10.2.min.js"></script>
+<script src="libs/redcat-msgbox.js"></script>
+<script src="i18n/en.js"></script>
+<script src="srcs/core.js"></script>
+<script src="srcs/views.common.js"></script>
+<script src="srcs/views.main.js"></script>
+<script src="srcs/views.welcome.js"></script>
+<script src="srcs/views.game.js"></script>
+<script src="srcs/controller.js"></script>
+</body>
+</html>
