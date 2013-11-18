@@ -92,7 +92,7 @@ TGO.Views.gameView = (function() {
      */
     function onGameCreated() {
         gameId.val(game.id);
-        setGameMessage('WELCOME %s! Copy game ID below and send it to your opponent.', game.playerName, game.id);
+        setGameMessage('WELCOME <span class="highlight">%s</span>! Your game ID is <span class="highlight">%s</span>. Send that to your opponent OR play against an AI.', game.playerName, game.id);
     }
 
     /**
@@ -102,10 +102,10 @@ TGO.Views.gameView = (function() {
     function onPlayerJoined() {
 
         if (game.isCreated) {
-            setGameMessage('%s connected. ARRANGE your pieces then click on the <u>SUBMIT GAME PIECES</u> button.',
+            setGameMessage('<span class="highlight">%s</span> connected. ARRANGE your pieces then click on the SUBMIT GAME PIECES button.',
                 game.opponentName);
         } else {
-            setGameMessage('WELCOME %s! ARRANGE your game pieces then click on the SUBMIT GAME PIECES button.',
+            setGameMessage('WELCOME <span class="highlight">%s</span>! ARRANGE your game pieces then click on the SUBMIT GAME PIECES button.',
                 game.playerName, game.opponentName);
         }
 
@@ -257,10 +257,10 @@ TGO.Views.gameView = (function() {
     function onGamePiecesSubmitted(playerId, positions, isStarted) {
         // if we are the player who submits it
         if (game.playerId == playerId) {
-            setGameMessage('Game pieces submitted. Waiting for %s.', game.opponentName);
+            setGameMessage('Game pieces submitted. Waiting for <span class="highlight">%s</span>.', game.opponentName);
         } else {
             if (!isStarted) {
-                setGameMessage('%s has submitted his/her game pieces.', game.opponentName);
+                setGameMessage('<span class="highlight">%s</span> has submitted his/her game pieces.', game.opponentName);
                 // allow the user submit game pieces
                 readyButton.show();
             }
@@ -286,7 +286,7 @@ TGO.Views.gameView = (function() {
     }
 
     function waitForOpponentsTurn() {
-        setGameMessage('Waiting for %s\'s move. Please wait.', game.opponentName);
+        setGameMessage('Waiting for <span class="highlight">%s\'s</span> move. Please wait.', game.opponentName);
         isGameBoardLocked = true;
 
         // now we have started
@@ -308,38 +308,36 @@ TGO.Views.gameView = (function() {
     }
 
     function highlightPossibleMoves(gamePiece) {
-        var oldPos = gamePiece.parent().data('pos');
-        var oldRow = Math.floor(oldPos / 9);
+        var position = gamePiece.parent().data('pos');
+        var row = Math.floor(position / 9);
 
         // top and bottom
-        highlightGamePieceContainer(gameBoard.find('td[data-pos="' + (oldPos + 9) + '"]'));
-        highlightGamePieceContainer(gameBoard.find('td[data-pos="' + (oldPos - 9) + '"]'));
+        highlightGamePieceContainer(gamePiece, gameBoard.find('td[data-pos="' + (position + 9) + '"]'));
+        highlightGamePieceContainer(gamePiece, gameBoard.find('td[data-pos="' + (position - 9) + '"]'));
         // left and still on the same row
-        if (oldRow == Math.floor((oldPos + 1) / 9)) {
-            highlightGamePieceContainer(gameBoard.find('td[data-pos="' + (oldPos + 1) + '"]'));
+        if (row == Math.floor((position + 1) / 9)) {
+            highlightGamePieceContainer(gamePiece, gameBoard.find('td[data-pos="' + (position + 1) + '"]'));
         }
         // right and still on the same row
-        if (oldRow == Math.floor((oldPos - 1) / 9)) {
-            highlightGamePieceContainer(gameBoard.find('td[data-pos="' + (oldPos - 1) + '"]'));
+        if (row == Math.floor((position - 1) / 9)) {
+            highlightGamePieceContainer(gamePiece, gameBoard.find('td[data-pos="' + (position - 1) + '"]'));
         }
     }
 
-    function highlightGamePieceContainer(container) {
+    function highlightGamePieceContainer(gamePiece, container) {
         if (container.length === 0) {
             // ooppsss, box is outside the game board
             return;
         }
-        // okay, a valid board box but let's check if
-        // we already have an existing game piece there
-        // that is an opponent's game piece
-        if (container.find('.game-piece.opponent').length) {
-            // the let's add a "challengeable" style
-            // which is only triggered when the player hovers
-            // his/her mouse over this TD element
-            container.addClass('challengeable');
-        } else if (container.find('.game-piece').length == 0) {
+        if (container.find('.game-piece').length == 0) {
             // no one's here so let's style this container
             container.addClass('possible-move');
+        } else if (gamePiece.hasClass('opponent')) {
+            if (container.find('.game-piece').not('.opponent').length) {
+                container.addClass('challengeable');
+            }
+        } else if (container.find('.game-piece.opponent').length) {
+            container.addClass('challengeable');
         }
     }
 
@@ -368,6 +366,17 @@ TGO.Views.gameView = (function() {
         if (hasStarted) {
             highlightPossibleMoves(gamePiece);
         }
+        view.emit(TGO.Views.Events.GAME_PIECE_SELECTED, {
+            gameId: game.id,
+            position: gamePiece.parent().data('pos')
+        });
+    }
+
+    function onOpponentGamePieceSelected(position) {
+        clearSelectionStyles();
+        var gamePiece = gameBoard.find('td[data-pos="' + position + '"] .game-piece');
+        gamePiece.addClass('selected');
+        highlightPossibleMoves(gamePiece);
     }
 
     /**
@@ -581,6 +590,7 @@ TGO.Views.gameView = (function() {
     view.onPlayerJoined = onPlayerJoined;
     view.onGamePiecesCreated = onGamePiecesCreated;
     view.onGamePiecesSubmitted = onGamePiecesSubmitted;
+    view.onOpponentGamePieceSelected = onOpponentGamePieceSelected;
     view.waitPlayersTurn = waitPlayersTurn;
     view.waitForOpponentsTurn = waitForOpponentsTurn;
     view.onGamePieceMovedOrChallenged = onGamePieceMovedOrChallenged;

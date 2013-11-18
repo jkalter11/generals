@@ -11,7 +11,12 @@
 </head>
 <body>
 <div class="container">
-    <div class="header"><a href="/index.html"></a></div>
+    <div class="header">
+        <a href="/index.html" target="_blank">
+            <small>THE GAME OF</small>
+            THE GENERALS
+        </a>
+    </div>
     <div class="content"></div>
     <div class="footer">
         <div class="author-links">
@@ -36,11 +41,9 @@
 <script id="welcome-template" type="text/template">
     <div class="game-menu">
         <input id="player-name-input" type="text" placeholder="{{{playerNameInputPlaceHolder}}}">
-        <hr>
         <h3>{{{createNewGameHeader}}}</h3>
         <p>{{{createGameDescription}}}</p>
         <button class="button" id="create-game">{{{createGameButton}}}</button>
-        <hr>
         <h3>{{{joinGameHeader}}}</h3>
         <p>{{{joinGameDescription}}}</p>
         <input type="text" id="game-id-input" placeholder="{{{gameIdInputPlaceHolder}}}">
@@ -55,9 +58,8 @@
     </div>
 </script>
 <script id="game-template" type="text/template">
-    <h4 class="game-message"></h4>
     <div id="game-board-header">
-        <input class="game-id" type="text" readonly>
+        <div class="game-message"></div>
         <button id="new-game" class="button">{{newGameButton}}</button>
         <button id="view-cheat-sheet" class="button">{{viewCheatSheetButton}}</button>
         <button id="ready" class="button">{{readyButton}}</button>

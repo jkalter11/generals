@@ -26,6 +26,8 @@ var IOEvents = {
     SUBMIT_PIECES: 'submit-pieces',
     // from server
     PIECES_SUBMITTED: 'pieces-submitted',
+    // from client
+    PIECE_SELECTED: 'piece-selected',
     // from client and server (cyclic)
     PLAYER_TAKES_TURN: 'player-takes-turn',
     // from client
@@ -52,6 +54,7 @@ module.exports = {
         socket.on(IOEvents.CREATE_GAME, onCreateGame);
         socket.on(IOEvents.PLAYER_JOIN, onPlayerJoin);
         socket.on(IOEvents.SUBMIT_PIECES, onSubmitPieces);
+        socket.on(IOEvents.PIECE_SELECTED, onPieceSelected);
         socket.on(IOEvents.PLAYER_TAKES_TURN, onPlayerTakesTurn);
         socket.on(IOEvents.DISCONNECT, onDisconnect);
 
@@ -188,6 +191,22 @@ function onSubmitPieces(data) {
 
     } catch (error) {
         emitError(this, IOEvents.PIECES_SUBMITTED, error);
+    }
+}
+
+/**
+ * Handles the IO event where the player selects a game piece
+ * Handles: IOEvents.PIECE_SELECTED
+ * Emits:   IOEvents.PIECE_SELECTED
+ * data:    position
+ */
+function onPieceSelected(data) {
+    try {
+        // let's get the game from the database
+        var game = gameDb.get(data.gameId);
+        this.broadcast.to(game.id).emit(IOEvents.PIECE_SELECTED, data);
+    } catch (error) {
+        emitError(this, IOEvents.PIECE_SELECTED, error);
     }
 }
 

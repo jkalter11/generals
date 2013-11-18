@@ -31,6 +31,7 @@ socket.on('connected', function(data) {
     socket.on(IOEvents.GAME_CREATED, onGameCreated);
     socket.on(IOEvents.PLAYER_JOINED, onPlayerJoined);
     socket.on(IOEvents.PIECES_SUBMITTED, onPiecesSubmitted);
+    socket.on(IOEvents.PIECE_SELECTED, onOpponentGamePieceSelected);
     socket.on(IOEvents.PLAYER_TAKES_TURN, onPlayerTakesTurn);
     socket.on(IOEvents.PLAYER_LEFT, onPlayerLeft);
 });
@@ -39,6 +40,7 @@ socket.on('connected', function(data) {
 welcomeView.on(TGO.Views.Events.CREATE_GAME, onViewCreateGame);
 welcomeView.on(TGO.Views.Events.JOIN_GAME, onViewJoinGame);
 gameView.on(TGO.Views.Events.SUBMIT_PIECES, onViewSubmitPieces);
+gameView.on(TGO.Views.Events.GAME_PIECE_SELECTED, onViewGamePieceSelected);
 gameView.on(TGO.Views.Events.TAKE_TURN, onViewMovesGamePiece);
 
 // Now, let's start and see the welcome view
@@ -140,6 +142,24 @@ function onPiecesSubmitted(data) {
     } else {
         msgbox.show(data.error);
     }
+}
+
+/**
+ * Source:  View
+ * Handles: When a game piece is selected
+ * Data:    gameId, position
+ */
+function onViewGamePieceSelected(data) {
+    socket.emit(IOEvents.PIECE_SELECTED, data);
+}
+
+/**
+ * Source:  Socket.IO
+ * Handles: When the opponent has selected a game piece
+ * Data:    position
+ */
+function onOpponentGamePieceSelected(data) {
+    gameView.onOpponentGamePieceSelected(data.position);
 }
 
 /**

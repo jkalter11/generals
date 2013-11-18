@@ -549,7 +549,6 @@ Board.prototype.movePiece = function(player, piece, newPosition, challengeCallba
     } else {
         result.isChallenge = true;
         result.challengeResult = challengeCallback(piece, newPositionPiece);
-        console.log('challenge: %s vs %s = %s', piece.code, newPositionPiece.code, result.challengeResult);
         if (result.challengeResult !== -1) {
             // since this is a challenge and you beat the newPositionPiece
             // remove this from the board or both are NOT equal ranks

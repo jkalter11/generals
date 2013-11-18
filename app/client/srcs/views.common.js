@@ -5,6 +5,7 @@ TGO.Views.Events = {
     CREATE_GAME: 'create-game',
     JOIN_GAME: 'join-game',
     SUBMIT_PIECES: 'submit-pieces',
+    GAME_PIECE_SELECTED: 'game-piece-selected',
     TAKE_TURN: 'take-turn'
 };
 
