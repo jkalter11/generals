@@ -12,7 +12,10 @@
 <body>
 <div class="container">
     <div class="header">
-        <a href="/index.html" target="_blank">
+        <select id="language">
+            <option value="en" selected>English</option>
+        </select>
+        <a href="/">
             <small>THE GAME OF</small>
             THE GENERALS
         </a>
@@ -33,36 +36,35 @@
             <div><a href="http://socket.io/"><img src="themes/socket.io.png" alt="Socket.IO"></a></div>
             <div><a href="http://expressjs.com/"><img src="themes/express.png" alt="Expressjs"></a></div>
             <div><a href="http://jquery.com/"><img src="themes/jQuery.png" alt="jQuery"></a></div>
-            <div><a href="http://handlebarsjs.com/"><img src="themes/Handlebarsjs.png" alt="Handlebarsjs"></a>
-            </div>
         </div>
     </div>
 </div>
 <script id="welcome-template" type="text/template">
     <div class="game-menu">
-        <input id="player-name-input" type="text" placeholder="{{{playerNameInputPlaceHolder}}}">
-        <h3>{{{createNewGameHeader}}}</h3>
-        <p>{{{createGameDescription}}}</p>
-        <button class="button" id="create-game">{{{createGameButton}}}</button>
-        <h3>{{{joinGameHeader}}}</h3>
-        <p>{{{joinGameDescription}}}</p>
-        <input type="text" id="game-id-input" placeholder="{{{gameIdInputPlaceHolder}}}">
-        <button class="button" id="join-game">{{{joinGameButton}}}</button>
+        <input id="player-name-input" type="text">
+        <h3 class="create-new-game-header"></h3>
+        <p class="create-new-game-description"></p>
+        <button id="create-game" class="button"></button>
+        <h3 class="join-game-header"></h3>
+        <p class="join-game-description"></p>
+        <input id="game-id-input" type="text">
+        <button id="join-game" class="button"></button>
     </div>
     <div class="game-info">
-        <h2>{{{gameInfoMainHeader}}}</h2>
-        <h4>{{{gameInfoAboutHeader}}}</h4>
-        <p>{{{gameInfoAboutDescription}}}</p>
-        <h4>{{{gameInfoAboutOnlineHeader}}}</h4>
-        <p>{{{gameInfoAboutOnlineDescription}}}</p>
+        <h2 class="game-info-main-header"></h2>
+        <h4 class="game-info-about-header"></h4>
+        <p class="game-info-about-description"></p>
+        <h4 class="game-info-about-online-header"></h4>
+        <p class="game-info-about-online-description"></p>
     </div>
 </script>
 <script id="game-template" type="text/template">
     <div id="game-board-header">
         <div class="game-message"></div>
-        <button id="new-game" class="button">{{newGameButton}}</button>
-        <button id="view-cheat-sheet" class="button">{{viewCheatSheetButton}}</button>
-        <button id="ready" class="button">{{readyButton}}</button>
+        <button id="new-game" class="button"></button>
+        <button id="view-cheat-sheet" class="button"></button>
+        <button id="ready" class="button"></button>
+        <button id="play-ai" class="button"></button>
     </div>
     <div class="game-board-container">
         <div id="fallen-pieces"></div>
@@ -70,10 +72,9 @@
     </div>
 </script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="libs/handlebars-v1.1.2.js"></script>
 <script src="libs/jquery-1.10.2.min.js"></script>
 <script src="libs/redcat-msgbox.js"></script>
-<script src="i18n/en.js"></script>
+<script src="srcs/i18n.js"></script>
 <script src="srcs/core.js"></script>
 <script src="srcs/views.common.js"></script>
 <script src="srcs/views.main.js"></script>

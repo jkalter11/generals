@@ -5,12 +5,14 @@
  */
 TGO.Views.mainView = (function() {
 
-    // we create a view that has a capability to recieve/broadcast events
-    // so that we can notify the controller our actions
     var view = new TGO.Models.EventEmitter();
-
     // the main content element which is transitioned from a welcome page to a game view page
     var content = $('.container .content');
+    // allow user to select language
+    var language = $('#language');
+    language.on('change', function() {
+        window.i18n.load(language.val());
+    });
 
     /**
      * Updates the main view to the welcome view container
@@ -33,28 +35,25 @@ TGO.Views.mainView = (function() {
         showTemplate(content, 'game-template', function() {
             TGO.Views.gameView.init();
             if (typeof callback == 'function') {
+                window.i18n.load(language.val());
                 callback();
             }
         });
     }
 
     /**
-     * Change the content of a container from a handlebars template
+     * Change the content of a container
      * @param  {String}   templateId The name (or ID) of the template to use
      * @param  {Function} callback   The function to use when the changing of the view has completed
      */
     function showTemplate(container, templateId, callback) {
-        // get the html content first which may container handlebars variables
         var html = $('#' + templateId).html();
-        // compile this template. Do we need to precompile this?
-        var template = Handlebars.compile(html);
-        // add international flavor
-        html = template(window.i18n);
-        // change the view
-        TGO.Views.utils.fadeToView(container, html, callback);
+        TGO.Views.utils.fadeToView(container, html, function() {
+            window.i18n.load()
+            callback();
+        });
     }
 
-    // API
     view.showWelcomeView = showWelcomeView;
     view.showGameView = showGameView;
     return view;

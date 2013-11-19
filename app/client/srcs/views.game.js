@@ -1,22 +1,19 @@
 /**
- * The game view object which wraps UI interaction with the game view
+ * The game view object which wraps UI interaction with the client player
  */
 TGO.Views.gameView = (function() {
 
-    // our game view needs to publish events
     var view = new TGO.Models.EventEmitter();
-
     // just a local reference to our game object
     // useful for minification as well as long typing
     var game = TGO.Models.game;
-
     // the following are jQuery objects which represents different DOM
     // elements that will be updated upon game state changes
     var message, gameId, fallenPieces;
     // some user action buttons to
     //      submit the game pieces (readyButton)
     //      play the game again (newGameButton)
-    var readyButton, newGameButton;
+    var readyButton, newGameButton, playAIButton;
     // and our game board jQuery object
     var gameBoard;
     // flag that controls whether the player con move his game pieces or not
@@ -45,29 +42,39 @@ TGO.Views.gameView = (function() {
             tbody.append('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>')
         }
         gameBoard.append(tbody);
-        // where we place our fallen pieces
+
         fallenPieces = $('#fallen-pieces');
-        // this is not in the dom yet, we only add it when we are ready to submit game pieces
+
         readyButton = $('#ready');
         readyButton.on('click', onReadyButtonClick);
-        // used to play again when the game is over
+
+        playAIButton = $('#play-ai');
+        playAIButton.on('click', function() {
+            view.emit(TGO.Views.Events.PLAY_AI);
+            playAIButton.hide();
+        });
+
         newGameButton = $('#new-game');
         newGameButton.on('click', function(e) {
             e.stopPropagation();
             window.location.reload();
         });
-        // TODO: add view cheat sheet button click
+
         viewCheatSheetButton = $('#view-cheat-sheet');
         viewCheatSheetButton.on('click', function(e) {
             e.stopPropagation();
             TGO.Views.utils.openSmallWindow('/cs.html', 'TGO');
         });
 
-        // and finally attach our delegated events for the game pieces
-        var doc = $(document);
-        doc.delegate('.content', 'click', clearSelectionStyles);
-        doc.delegate('.game-piece', 'click', onGamePieceSelected);
-        doc.delegate('#game-board', 'contextmenu', onGamePieceMoved);
+        $(document).delegate('.content', 'click', function(e) {
+            e.preventDefault();
+            if (!isGameBoardLocked) {
+                clearSelectionStyles();
+            }
+        });
+
+        gameBoard.on('contextmenu', onGamePieceMoved);
+        gameBoard.delegate('.game-piece', 'click', onGamePieceSelected);
     }
 
     /**
@@ -82,7 +89,7 @@ TGO.Views.gameView = (function() {
         }
         // first, replace placeholders and translate this text
         msg = TGO.Views.utils.i18n.apply(null, args);
-        // show this message
+
         TGO.Views.utils.fadeToView(message, msg, callback);
     }
 
@@ -92,7 +99,7 @@ TGO.Views.gameView = (function() {
      */
     function onGameCreated() {
         gameId.val(game.id);
-        setGameMessage('WELCOME <span class="highlight">%s</span>! Your game ID is <span class="highlight">%s</span>. Send that to your opponent OR play against an AI.', game.playerName, game.id);
+        setGameMessage('WELCOME <span class="highlight">%s</span>! Your game ID is <span class="highlight">%s</span>. Send this to your opponent.', game.playerName, game.id);
     }
 
     /**
@@ -102,13 +109,14 @@ TGO.Views.gameView = (function() {
     function onPlayerJoined() {
 
         if (game.isCreated) {
-            setGameMessage('<span class="highlight">%s</span> connected. ARRANGE your pieces then click on the SUBMIT GAME PIECES button.',
+            setGameMessage('<span class="highlight">%s</span> connected. ARRANGE your pieces.',
                 game.opponentName);
         } else {
-            setGameMessage('WELCOME <span class="highlight">%s</span>! ARRANGE your game pieces then click on the SUBMIT GAME PIECES button.',
+            setGameMessage('WELCOME <span class="highlight">%s</span>! ARRANGE your game pieces.',
                 game.playerName, game.opponentName);
         }
 
+        playAIButton.hide();
         readyButton.show();
         gameId.val(game.id);
         initGameBoardPositions();
@@ -133,9 +141,7 @@ TGO.Views.gameView = (function() {
                 }
                 td = gameBoard
                     .find('tr:nth-child(' + row + ') td:nth-child(' + column + ')')
-                    // so we can easily find a TD element
                     .attr('data-pos', position)
-                    // so we can easily refer the position value programmatically
                     .data('position', position);
                 if (row > 5) {
                     td.addClass('initialized');
@@ -152,9 +158,7 @@ TGO.Views.gameView = (function() {
                 }
                 td = gameBoard
                     .find('tr:nth-child(' + row + ') td:nth-child(' + column + ')')
-                    // so we can easily find a TD element
                     .attr('data-pos', position)
-                    // so we can easily refer the position value programmatically
                     .data('position', position);
                 if (row > 5) {
                     td.addClass('initialized');
@@ -199,12 +203,9 @@ TGO.Views.gameView = (function() {
      * @return {jQuery}       The jQuery object representing the game piece
      */
     function createGamePiece(piece) {
-        // this is the containing jQuery object of this game piece
+
         var element = $('<div>');
-
-        // add the classes for styling this piece object
         element.addClass('game-piece');
-
         // okay, we assume this is an opponent's game piece
         // since we are not given the code/rank
         if (!piece.code) {
@@ -213,8 +214,7 @@ TGO.Views.gameView = (function() {
             element.addClass('game-piece-' + piece.code);
             element.html('<span class="code">' + piece.code + '</span>');
         }
-
-        // set our initial position so it can be added in the board
+        // set our initial position so it can be added in the game board UI
         element.data('init-pos', piece.position);
         return element;
     }
@@ -224,14 +224,12 @@ TGO.Views.gameView = (function() {
      */
     function onReadyButtonClick(e) {
         e.stopPropagation();
-
-        // then we are ready to submit our game pieces
         view.emit(TGO.Views.Events.SUBMIT_PIECES, {
             gameId: game.id,
             playerId: game.playerId,
             gamePieces: getGamePiecesOnBoard()
         });
-
+        playAIButton.hide();
         readyButton.hide();
     }
 
@@ -277,10 +275,8 @@ TGO.Views.gameView = (function() {
     }
 
     function waitPlayersTurn() {
-        setGameMessage('YOUR TURN!');
+        setGameMessage('<span class="highlight">YOUR TURN! MAKE YOUR MOVE.</span>');
         isGameBoardLocked = false;
-
-        // now we have started
         hasStarted = true;
         clearSelectionStyles();
     }
@@ -288,21 +284,15 @@ TGO.Views.gameView = (function() {
     function waitForOpponentsTurn() {
         setGameMessage('Waiting for <span class="highlight">%s\'s</span> move. Please wait.', game.opponentName);
         isGameBoardLocked = true;
-
-        // now we have started
         hasStarted = true;
         clearSelectionStyles();
     }
 
     function clearSelectionStyles() {
-        // remove all game piece selection style
         gameBoard.find('.game-piece').removeClass('selected');
-        // remove all hint styles
         gameBoard.find('td').removeClass('challengeable')
                             .removeClass('possible-move');
         if (hasStarted) {
-            // and if we have already submitted our pieces,
-            // then we don't need anymore the initialized style
             gameBoard.find('td').removeClass('initialized');
         }
     }
@@ -326,11 +316,9 @@ TGO.Views.gameView = (function() {
 
     function highlightGamePieceContainer(gamePiece, container) {
         if (container.length === 0) {
-            // ooppsss, box is outside the game board
             return;
         }
         if (container.find('.game-piece').length == 0) {
-            // no one's here so let's style this container
             container.addClass('possible-move');
         } else if (gamePiece.hasClass('opponent')) {
             if (container.find('.game-piece').not('.opponent').length) {
@@ -356,9 +344,7 @@ TGO.Views.gameView = (function() {
             return;
         }
 
-        // clear all selections
         clearSelectionStyles();
-        // add our selection styling
         gamePiece.addClass('selected');
         // and if the game has already started,
         // then we should show the user all the possible
@@ -385,29 +371,22 @@ TGO.Views.gameView = (function() {
      */
     function onGamePieceMoved(e) {
         e.stopPropagation();
-        // stop the context menu as well
         e.preventDefault();
 
-        // no user move is allowed at these states
         if (isGameBoardLocked || isAnimating) {
             return;
         }
 
         var gamePiece = gameBoard.find('.game-piece.selected');
-        // if we don't have a selected game piece, then nothing's to be moved
         if (gamePiece.length == 0) {
             return;
         }
 
         var newParent = $(e.target);
-        // let's make sure this is a td
         while (newParent.prop('tagName') != 'TD') {
             newParent = newParent.parent();
         }
         // if the parent is not a target parent, then we should not
-        // allow this move although it will still be validated in
-        // the server, this is for better user experience and lessen
-        // network calls/latencies
         if (hasStarted &&
             !newParent.hasClass('possible-move') &&
             !newParent.hasClass('challengeable')) {
@@ -433,16 +412,14 @@ TGO.Views.gameView = (function() {
         // our game pieces anywhere within our "bounderies"
         } else {
 
-            // prevent moves outside the player's bounderies
-            // and clear the selection
+            // prevent moves outside the player's bounderies and clear the selection
             if ( game.isCreated && newParent.data('pos') > 26 ||
                 !game.isCreated && newParent.data('pos') < 45) {
                 clearSelectionStyles();
                 return;
             }
 
-            // before we move, let's see first if
-            // there is already a piece on the new parent
+            // before we move, let's see first if there is already a piece on the new parent
             var currentParent = gamePiece.parent();
             var newParentChild = newParent.find('.game-piece');
 
@@ -555,19 +532,19 @@ TGO.Views.gameView = (function() {
         if (data.playerId) {
             if (data.is30MoveRule) {
                 if (data.playerId == game.playerId) {
-                    setGameMessage('YOU WIN BY THE 30-MOVE RULE!');
+                    setGameMessage('<span class="highlight">YOU WIN BY THE 30-MOVE RULE!</span>');
                 } else {
-                    setGameMessage('YOU LOSE BY THE 30-MOVE RULE!');
+                    setGameMessage('<span class="highlight">YOU LOSE BY THE 30-MOVE RULE!</span>');
                 }
             } else {
                 if (data.playerId == game.playerId) {
-                    setGameMessage('YOU WIN!');
+                    setGameMessage('<span class="highlight">YOU WIN!</span>');
                 } else {
-                    setGameMessage('YOU LOSE!');
+                    setGameMessage('<span class="highlight">YOU LOSE!</span>');
                 }
             }
         } else {
-            setGameMessage('THIS BOUT IS A DRAW BY THE 30-MOVE RULE!');
+            setGameMessage('<span class="highlight">THIS GAME IS A DRAW BY THE 30-MOVE RULE!</span>');
         }
 
         // then, let's reveal all the opponent pieces

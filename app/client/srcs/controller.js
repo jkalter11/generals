@@ -1,11 +1,8 @@
 /**
  * Handles OI Server-Client Communication
- * @param  {Object} TGO The namespace of the app containing existing modules
  */
-(function(TGO) {
 
-// the client socket, take note of the port number (must check the server)
-var socket = io.connect('http://localhost:3000');
+var socket = io.connect(window.location.href);
 
 // this object contains all the event names that will
 // be communicated on Socket.IO, we take this from the
@@ -39,6 +36,7 @@ socket.on('connected', function(data) {
 // handle view events
 welcomeView.on(TGO.Views.Events.CREATE_GAME, onViewCreateGame);
 welcomeView.on(TGO.Views.Events.JOIN_GAME, onViewJoinGame);
+gameView.on(TGO.Views.Events.PLAY_AI, onViewPlayAI);
 gameView.on(TGO.Views.Events.SUBMIT_PIECES, onViewSubmitPieces);
 gameView.on(TGO.Views.Events.GAME_PIECE_SELECTED, onViewGamePieceSelected);
 gameView.on(TGO.Views.Events.TAKE_TURN, onViewMovesGamePiece);
@@ -70,6 +68,17 @@ function onGameCreated(data) {
     } else {
         msgbox.show(data.error);
     }
+}
+
+/**
+ * Source:  View
+ * Handles: When a user likes to play with AI
+ * Data:    gameId, playerName
+ */
+function onViewPlayAI() {
+    socket.emit(IOEvents.PLAY_AI, {
+        gameId: game.id
+    });
 }
 
 /**
@@ -165,7 +174,7 @@ function onOpponentGamePieceSelected(data) {
 /**
  * Source:  Socket.IO
  * Handles: When the player has taken turn
- * Data:    success, playerId
+ * Data:    success, playerId, result
  */
 function onPlayerTakesTurn(data) {
     if (data.success) {
@@ -202,5 +211,3 @@ function onPlayerLeft(data) {
         window.location.reload();
     });
 }
-
-})(window.TGO);

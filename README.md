@@ -10,7 +10,6 @@ Backend
 
 Frontend
 - `jQuery` for DOM manipulation, animation and AJAX
-- `Handlebarsjs` for client side templating
 
 The Game of the Generals, also called GG as it is most fondly called, or simply The Generals, is an educational wargame invented in the Philippines by Sofronio H. Pasola, Jr. in 1970. It can be played within twenty to thirty minutes. It is designed for two players, each controlling an army, and a neutral arbiter or an adjutant. It needs the use of logic. The game simulates armies at war trying to outflank and outmaneuver each other. As in actual warfare, the game allows only one side's plan to succeed. Certain strategies and tactics, however, allow both sides the chance of securing a better idea of the other's plan as the game progresses. Players can also speak with others during matches, hoping to make a false impression on where the flag is. ([>>> more at Wikipedia](http://en.wikipedia.org/wiki/Game_of_the_Generals "The Game of the Generals"))
 

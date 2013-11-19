@@ -1,8 +1,12 @@
-// The name of view events that will be published and subscribed to
-// we placed it in an object because we want to use these event
-// names in the controller
+/**
+ * The name of view events that will be published and subscribed to
+ * we placed it in an object because we want to use these event
+ * names in the controller
+ * @type {Object}
+ */
 TGO.Views.Events = {
     CREATE_GAME: 'create-game',
+    PLAY_AI: 'play-ai',
     JOIN_GAME: 'join-game',
     SUBMIT_PIECES: 'submit-pieces',
     GAME_PIECE_SELECTED: 'game-piece-selected',
@@ -18,11 +22,8 @@ TGO.Views.utils = {
      * @param  {Function} callback The function to call once completed (optional)
      */
     fadeToView: function(element, content, callback) {
-        // fade out first and fast
         element.fadeOut('fast', function() {
-            // fill up html after this element is gone (faded out)
             element.html(content);
-            // start fading in fast
             element.fadeIn('fast', function() {
                 if (typeof callback == 'function') {
                     callback();
@@ -54,7 +55,6 @@ TGO.Views.utils = {
             argIndex++;
         }
 
-        // return the possibly translated text
         return text;
     },
 
@@ -69,15 +69,12 @@ TGO.Views.utils = {
      */
     moveElementAnim: function(element, newParent, callback) {
 
-        // let's make sure we have an element to move
         if (!element.length) {
-            // although we will still call their callback
             if (typeof callback == 'function') {
                 callback();
             }
             return;
         }
-        // old offset location of the element
         var oldOffset = element.offset();
         // append the element to get the new offset position
         element.prependTo(newParent);
@@ -92,14 +89,13 @@ TGO.Views.utils = {
 
         // let's hide the element now while we animate the clone
         element.hide();
+
         cloned.animate({
                 'top': newOffset.top,
                 'left': newOffset.left
             }, 'fast', function() {
-                // show the element since we are done
                 element.show();
-                // the clone has served its purpose
-                // so we'll remove it from the DOM
+                // the clone has served its purpose so we'll remove it from the DOM
                 cloned.remove();
                 // and we finally call the after callback if there is
                 if (typeof callback == 'function') {
@@ -119,7 +115,6 @@ TGO.Views.utils = {
 TGO.Views.msgbox = {
     show: function(message, callback) {
         message = TGO.Views.utils.i18n.apply(null, arguments);
-        // use the appliation name as the title of all message box calls
         $.msgbox.show(message, TGO.appName, callback);
     }
 };

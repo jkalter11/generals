@@ -1,14 +1,6 @@
-/**
- * This contains our main namespace as well as library wrappers that should not go to controller and models
- * libraries used in views are exempted
- */
-
-// declare our topmost namespace
-TGO = {
+window.TGO = {
     appName: 'The Generals Online v0.0.1',
-    // our topmost namespace for models
     Models: {},
-    // our topmost namespace for views
     Views: {}
 };
 
@@ -29,7 +21,7 @@ TGO.Models.game = {
      * The name of the opponent
      * @type {String}
      */
-    opponentName: 'Opponent',
+    opponentName: 'Anonymous',
 
     /**
      * The game pieces of the game, including the opponent
@@ -41,7 +33,7 @@ TGO.Models.game = {
      * Initializes the game object
      * @param  {String} gameId     The id of the newly created game
      * @param  {String} playerId   The id of the client player
-     * @param  {String} playerName The nam of the client player
+     * @param  {String} playerName The name of the client player
      */
     init: function(gameId, playerId, playerName) {
         this.id = gameId;
@@ -66,7 +58,6 @@ TGO.Models.game = {
         this.pieces.push({ code: '2LT' });
         this.pieces.push({ code: 'SGT' });
         this.pieces.push({ code: 'FLG' });
-        // we need 6 privates
         for (var i = 0; i < 6; i++) {
             this.pieces.push({ code: 'PVT' });
         }

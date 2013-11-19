@@ -1,5 +1,14 @@
 // Import our game module
 var gm = require('./game.js');
+// Import our AI thread worker
+var proc = require('child_process');
+var aiMan = proc.fork('app/ai-manager.js');
+aiMan.on('error', function(err) {
+    console.log(err);
+});
+aiMan.on('exit', function() {
+    console.log('AI Manager exited.');
+});
 
 // let's instantiate our game in-memory database
 // Our game does not really track a game after it's over
@@ -18,6 +27,8 @@ var IOEvents = {
     CREATE_GAME: 'create-game',
     // from server
     GAME_CREATED: 'game-created',
+    // from client
+    PLAY_AI: 'play-ai',
     // from client
     PLAYER_JOIN: 'player-join',
     // from server
@@ -52,6 +63,7 @@ module.exports = {
         socket = _socket;
 
         socket.on(IOEvents.CREATE_GAME, onCreateGame);
+        socket.on(IOEvents.PLAY_AI, onPlayAI);
         socket.on(IOEvents.PLAYER_JOIN, onPlayerJoin);
         socket.on(IOEvents.SUBMIT_PIECES, onSubmitPieces);
         socket.on(IOEvents.PIECE_SELECTED, onPieceSelected);
@@ -120,6 +132,18 @@ function onCreateGame(data) {
     } catch (error) {
         emitError(this, IOEvents.GAME_CREATED, error);
     }
+}
+
+/**
+ * Called when a client wants to practice with AI
+ * Handles: IOEvents.PLAY_AI
+ * Data:    gameId
+ */
+function onPlayAI(data) {
+    aiMan.send({
+        gameId: data.gameId,
+        url: 'http://localhost:3000'
+    });
 }
 
 /**

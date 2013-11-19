@@ -7,8 +7,6 @@
  */
 TGO.Views.welcomeView = (function() {
 
-    // we create a view that has a capability to recieve/broadcast events
-    // so that we can notify the controller our actions
     var view = new TGO.Models.EventEmitter();
     // the playerName jQuery input element
     var playerName;
@@ -25,30 +23,24 @@ TGO.Views.welcomeView = (function() {
 
         // now all anchor links will also have to be opened in a new window
         // we could have done this in HTML but i feel it's very redundant
-        $('a').attr('target', '_blank');
+        $('.content a').attr('target', '_blank');
     }
 
-    // handle the create game button click
     function onCreateGameButtonClick(e) {
         e.stopPropagation();
 
-        // we have required fields
         if (!areFieldsNotEmpty(playerName))
             return;
 
-        // emit our player name
         view.emit(TGO.Views.Events.CREATE_GAME, { playerName: playerName.val() });
     }
 
-    // handle the join game button
     function onJoinGameGameButtonClick(e) {
         e.stopPropagation();
 
-        // we have required fields
         if (!areFieldsNotEmpty(playerName, gameId))
             return;
 
-        // emit the player name and game id
         view.emit(TGO.Views.Events.JOIN_GAME, {
             playerName: playerName.val(),
             gameId: gameId.val()
@@ -70,7 +62,6 @@ TGO.Views.welcomeView = (function() {
         return true;
     }
 
-    // API
     view.init = init;
     return view;
 
