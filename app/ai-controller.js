@@ -1,6 +1,10 @@
 // our socket io client
 var io = require('socket.io-client');
 
+var aiNames = [
+    'Jayjay', 'Myka', 'Jojo', 'Marjun', 'Joy', 'May Joy'
+];
+
 /**
  * When our server requests for a new AI player
  * Data: gameId, url (socket URL)
@@ -8,7 +12,7 @@ var io = require('socket.io-client');
 process.on('message', function(data) {
 
     var socket = io.connect(data.url);
-    var player = new AIPlayer('Jayjay', data.gameId);
+    var player = new AIPlayer(aiNames[Math.floor(Math.random() * aiNames.length)], data.gameId);
 
     // this object contains all the event names that will
     // be communicated on Socket.IO, we take this from the
@@ -22,7 +26,9 @@ process.on('message', function(data) {
         // let's get the event names from the server
         IOEvents = data;
 
-        // now let's attach all our IO events
+        console.log('AI player "%s" connected to game "%s".', player.name, player.gameId);
+
+        // now let's attach all our IO events (the only event that matters for our AI)
         socket.on(IOEvents.PLAYER_JOINED, onPlayerJoined);
         socket.on(IOEvents.PLAYER_TAKES_TURN, onPlayerTakesTurn);
         socket.on(IOEvents.PLAYER_LEFT, onPlayerLeft);
@@ -33,6 +39,9 @@ process.on('message', function(data) {
             gameId: player.gameId
         });
     });
+    socket.on('disconnected', function() {
+        console.log('AI player "%s" left the game "%s".', player.name, player.gameId);
+    });
 
     /**
      * Source:  Socket.IO
@@ -40,16 +49,18 @@ process.on('message', function(data) {
      * Data:    success, gameId, playerId, playerName
      */
     function onPlayerJoined(data) {
-        // we are always the one joining this existing game
+        // we are always the one joining an existing game
         player.id = data.playerId;
-        // TODO: arrange game pieces
         player.generatePieces();
-        // then submit immediately
-        socket.emit(IOEvents.SUBMIT_PIECES, {
-            gameId: player.gameId,
-            playerId: player.id,
-            gamePieces: player.pieces
-        });
+        // then submit immediately after some time
+        // so the human player can view the message
+        setTimeout(function() {
+            socket.emit(IOEvents.SUBMIT_PIECES, {
+                gameId: player.gameId,
+                playerId: player.id,
+                gamePieces: player.pieces
+            });
+        }, 1000);
     }
 
     /**
@@ -65,28 +76,30 @@ process.on('message', function(data) {
         // get the next turn
         if (data.playerId == player.id) {
 
-            // let's see if the human player challenges us and defeated us
+            // let's see if the human player challenged and defeated/drawed us
             if (data.result.isChallenge) {
                 var piece = player.getPiece(data.result.newPosition);
-                if (data.result.isChallenge && data.result.challengeResult == 1) {
+                if (data.result.isChallenge && data.result.challengeResult != -1) {
+                    // okay we are defeated or drawed
                     piece.position = -1;
                 }
             }
+            // let's randomly move our game piece
             var result = player.movePiece();
             // select then take turn
             socket.emit(IOEvents.PIECE_SELECTED, {
                 gameId: player.gameId,
                 position: result.piece.position
             });
+
+            // emit after some time so the human player can see our selection and move
             setTimeout(function() {
-                // emit so the human player can see our move
                 socket.emit(IOEvents.PLAYER_TAKES_TURN, {
                     gameId: player.gameId,
                     playerId: player.id,
                     oldPosition: result.piece.position,
                     newPosition: result.newPosition
                 });
-                // update our position
             }, 1000);
         } else {
             var piece = player.getPiece(data.result.oldPosition);
@@ -105,7 +118,7 @@ process.on('message', function(data) {
      */
     function onPlayerLeft(data) {
         socket.disconnect();
-        socket = null;
+        process.exit(0);
     }
 
 });
@@ -119,7 +132,9 @@ function AIPlayer(name, gameId) {
 AIPlayer.prototype = {
 
     generatePieces: function() {
-        this.pieces.length = 0;
+        // our flag will be placed on the last row so we create a reference here
+        var flag = { code: 'FLG' };
+
         this.pieces.push({ code: 'GOA' });
         this.pieces.push({ code: 'SPY' });
         this.pieces.push({ code: 'SPY' });
@@ -134,42 +149,66 @@ AIPlayer.prototype = {
         this.pieces.push({ code: '1LT' });
         this.pieces.push({ code: '2LT' });
         this.pieces.push({ code: 'SGT' });
-        this.pieces.push({ code: 'FLG' });
         for (var i = 0; i < 6; i++) {
             this.pieces.push({ code: 'PVT' });
         }
+        this.pieces.push(flag);
 
         // now let's add the positions randomly
-        // first lets build the array
-        var start = 0, end = 26;
-        if (!this.isCreated) {
-            start = 45, end = 71;
-        }
+        // first lets build the array of positions
+        var start = 45, end = 71;
         var positions = [];
         while (start <= end) {
             positions.push(start);
             start++;
         }
-        // simple randomization
-        positions.sort(function() {
-            return Math.random() - 0.5;
-        });
+        // Knuth Shuffle our positions
+        var i = positions.length, j, temp;
+        while (i--) {
+            j = Math.floor(Math.random() * (i - 1));
+            temp = positions[i];
+            positions[i] = positions[j];
+            positions[j] = temp;
+        }
+
         // now inject the random positions
         for (var i = 0, j = this.pieces.length; i < j; i++) {
             this.pieces[i].position = positions[i];
         }
+
+        // but we simply need our flag at the last row of course
+        var position = Math.floor(Math.random() * (71 - 63 + 1)) + 63;
+        var piece = this.getPiece(position);
+        if (piece) {
+            piece.position = flag.position;
+        }
+        flag.position = position;
     },
+
+    /**
+     * Selects a random game piece and a random move
+     * @return {Object} The game piece and the new position
+     */
     movePiece: function() {
         var piece, newPosition;
         do {
             piece = this.pieces[Math.floor(Math.random() * this.pieces.length)];
-            newPosition = this.nextMove(piece);
+            if (piece.position != -1) {
+                newPosition = this.nextMove(piece);
+            }
         } while (!newPosition);
+        console.log('piece choosen: ', piece.code);
         return {
             piece: piece,
             newPosition: newPosition
         };
     },
+
+    /**
+     * Computes the next possible move of the given game piece
+     * @param  {Object}  piece The game piece to move
+     * @return {Integer}       The new position
+     */
     nextMove: function(piece) {
 
         var position = piece.position;
@@ -182,7 +221,7 @@ AIPlayer.prototype = {
             nextPositions.push(nextPosition);
         }
         nextPosition = position - 9;
-        if (nextPosition > 0 && !this.getPiece(nextPosition)) {
+        if (nextPosition > -1 && !this.getPiece(nextPosition)) {
             nextPositions.push(nextPosition);
         }
         // left and still on the same row
@@ -192,12 +231,16 @@ AIPlayer.prototype = {
         }
         // right and still on the same row
         nextPosition = position - 1;
-        if (nextPosition < 72 && row == Math.floor((nextPosition) / 9) && !this.getPiece(nextPosition)) {
+        if (nextPosition > -1 && row == Math.floor((nextPosition) / 9) && !this.getPiece(nextPosition)) {
             nextPositions.push(nextPosition);
         }
 
         return nextPositions[Math.floor(Math.random() * nextPositions.length)];
     },
+
+    /**
+     * Get the piece from the specified position
+     */
     getPiece: function(position) {
         for (var i = 0, j = this.pieces.length; i < j; i++) {
             if (this.pieces[i].position == position) {

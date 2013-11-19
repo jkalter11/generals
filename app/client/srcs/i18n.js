@@ -42,6 +42,6 @@ window.i18n.en = function() {
         'ready-button': 'SUBMIT GAME PIECES',
         'new-game-button': 'New Game',
         'view-cheat-sheet-button': 'View Cheat Sheet',
-        'play-ai-button': 'Play Against AI'
+        'play-ai-button': 'PRACTICE FIRST'
     };
 };

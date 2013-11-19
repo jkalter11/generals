@@ -1,14 +1,7 @@
 // Import our game module
 var gm = require('./game.js');
-// Import our AI thread worker
+// Import our AI child process worker
 var proc = require('child_process');
-var aiMan = proc.fork('app/ai-manager.js');
-aiMan.on('error', function(err) {
-    console.log(err);
-});
-aiMan.on('exit', function() {
-    console.log('AI Manager exited.');
-});
 
 // let's instantiate our game in-memory database
 // Our game does not really track a game after it's over
@@ -140,10 +133,12 @@ function onCreateGame(data) {
  * Data:    gameId
  */
 function onPlayAI(data) {
-    aiMan.send({
-        gameId: data.gameId,
-        url: 'http://localhost:3000'
+    // let's fork our AI controller
+    var aiController = proc.fork('app/ai-controller.js');
+    aiController.on('exit', function() {
+        console.log('AI Player exited.');
     });
+    aiController.send(data);
 }
 
 /**
@@ -222,13 +217,12 @@ function onSubmitPieces(data) {
  * Handles the IO event where the player selects a game piece
  * Handles: IOEvents.PIECE_SELECTED
  * Emits:   IOEvents.PIECE_SELECTED
- * data:    position
+ * data:    gameId, position
  */
 function onPieceSelected(data) {
     try {
         // let's get the game from the database
-        var game = gameDb.get(data.gameId);
-        this.broadcast.to(game.id).emit(IOEvents.PIECE_SELECTED, data);
+        this.broadcast.to(data.gameId).emit(IOEvents.PIECE_SELECTED, data);
     } catch (error) {
         emitError(this, IOEvents.PIECE_SELECTED, error);
     }

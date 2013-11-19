@@ -99,7 +99,7 @@ TGO.Views.gameView = (function() {
      */
     function onGameCreated() {
         gameId.val(game.id);
-        setGameMessage('WELCOME <span class="highlight">%s</span>! Your game ID is <span class="highlight">%s</span>. Send this to your opponent.', game.playerName, game.id);
+        setGameMessage('WELCOME <span class="highlight">%s</span>! Your game ID is <span class="highlight">%s</span>. Send this to your opponent or play against AI.', game.playerName, game.id);
     }
 
     /**
@@ -285,7 +285,6 @@ TGO.Views.gameView = (function() {
         setGameMessage('Waiting for <span class="highlight">%s\'s</span> move. Please wait.', game.opponentName);
         isGameBoardLocked = true;
         hasStarted = true;
-        clearSelectionStyles();
     }
 
     function clearSelectionStyles() {
@@ -400,6 +399,7 @@ TGO.Views.gameView = (function() {
             // or challenge an opponent's piece
             // NOTE: these client side validation is not foolproof
             //       so we also have server side validation (no cheating)
+            isGameBoardLocked = true;
             view.emit(TGO.Views.Events.TAKE_TURN, {
                 gameId: game.id,
                 playerId: game.playerId,
@@ -461,7 +461,7 @@ TGO.Views.gameView = (function() {
         }
     }
 
-    function moveGamePiece(gamePiece, newParent) {
+    function moveGamePiece(gamePiece, newParent, callback) {
         // prevent other user moves
         isAnimating = true;
         // add some styling to our target newParent
@@ -480,6 +480,9 @@ TGO.Views.gameView = (function() {
             }
             // and allow other things to happen
             isAnimating = false;
+            if (typeof callback == 'function') {
+                callback();
+            }
         });
     }
 
@@ -505,7 +508,7 @@ TGO.Views.gameView = (function() {
      * Moves the game piece after validated by the server
      * @param {Object} moveResult The result object based from the server
      */
-    function onGamePieceMovedOrChallenged(moveResult) {
+    function onGamePieceMovedOrChallenged(moveResult, callback) {
         var gamePiece = gameBoard.find('td[data-pos="' + moveResult.oldPosition + '"] .game-piece');
         var newParent = gameBoard.find('td[data-pos="' + moveResult.newPosition + '"]');
 
@@ -514,18 +517,17 @@ TGO.Views.gameView = (function() {
             var opponentPiece = newParent.find('.game-piece');
             if (moveResult.challengeResult == 1) {
                 throwGamePiece(opponentPiece);
-                moveGamePiece(gamePiece, newParent);
+                moveGamePiece(gamePiece, newParent, callback);
             } else if (moveResult.challengeResult == 0) {
                 throwGamePiece(opponentPiece);
                 throwGamePiece(gamePiece);
             } else {
                 throwGamePiece(gamePiece);
-                moveGamePiece(opponentPiece, newParent);
+                moveGamePiece(opponentPiece, newParent, callback);
             }
         } else {
-            moveGamePiece(gamePiece, newParent);
+            moveGamePiece(gamePiece, newParent, callback);
         }
-        clearSelectionStyles();
     }
 
     function showGameOver(data) {

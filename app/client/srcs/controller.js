@@ -1,7 +1,6 @@
 /**
  * Handles OI Server-Client Communication
  */
-
 var socket = io.connect(window.location.href);
 
 // this object contains all the event names that will
@@ -77,7 +76,10 @@ function onGameCreated(data) {
  */
 function onViewPlayAI() {
     socket.emit(IOEvents.PLAY_AI, {
-        gameId: game.id
+        gameId: game.id,
+        // THINK: i have been looking for a way to get this url from the server
+        // but i am not successful, so we just get it here
+        url: window.location.href
     });
 }
 
@@ -179,18 +181,19 @@ function onOpponentGamePieceSelected(data) {
 function onPlayerTakesTurn(data) {
     if (data.success) {
         // let's inform the view that the move is valid
-        gameView.onGamePieceMovedOrChallenged(data.result);
-        if (data.isGameOver) {
-            // the current player is the winner
-            gameView.showGameOver(data);
-        } else {
-            // get the next turn
-            if (data.playerId == game.playerId) {
-                gameView.waitPlayersTurn();
+        gameView.onGamePieceMovedOrChallenged(data.result, function() {
+            if (data.isGameOver) {
+                // the current player is the winner
+                gameView.showGameOver(data);
             } else {
-                gameView.waitForOpponentsTurn();
+                // get the next turn
+                if (data.playerId == game.playerId) {
+                    gameView.waitPlayersTurn();
+                } else {
+                    gameView.waitForOpponentsTurn();
+                }
             }
-        }
+        });
     } else {
         msgbox.show(data.error);
     }

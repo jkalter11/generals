@@ -210,6 +210,9 @@ Game.prototype.takeTurn = function(playerId, oldPosition, newPosition) {
     if (this.currentPlayer.id != playerId) {
         throw new Error('Player ID passed is not the current player');
     }
+
+    console.log('%s: %d -> %d', playerId, oldPosition, newPosition);
+
     var player = this.getPlayer(playerId);
     var piece = player.getPiece(oldPosition);
     var result = this.board.movePiece(player, piece, newPosition, this.challenge);
