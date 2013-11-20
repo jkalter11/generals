@@ -37,10 +37,19 @@
             <div><a href="http://expressjs.com/"><img src="themes/express.png" alt="Expressjs"></a></div>
             <div><a href="http://jquery.com/"><img src="themes/jQuery.png" alt="jQuery"></a></div>
         </div>
+        <div class="misc-attributions">
+            <h4>This application is best viewed using the latest web browsers. Older browsers especially (IEhem!) are not tested. NO MOBILE SUPPORT YET.</h4>
+            <div><img src="themes/safari.png" alt="Safari"></div>
+            <div><img src="themes/firefox.png" alt="Firefox"></div>
+            <div><img src="themes/chrome.png" alt="Chrome"></div>
+            <div><img src="themes/opera.png" alt="Opera"></div>
+            <div><img src="themes/ie.png" alt="IE Latest"></div>
+        </div>
     </div>
 </div>
 <script id="welcome-template" type="text/template">
     <div class="game-menu">
+        <h3 id="player-name-header"></h3>
         <input id="player-name-input" type="text">
         <h3 class="create-new-game-header"></h3>
         <p class="create-new-game-description"></p>
@@ -69,6 +78,8 @@
     <div class="game-board-container">
         <div id="fallen-pieces"></div>
         <table id="game-board"></table>
+        <table id="game-board-numbers"></table>
+        <div class="board-instructions"></div>
     </div>
 </script>
 <script src="/socket.io/socket.io.js"></script>

@@ -23,7 +23,7 @@ TGO.Views.welcomeView = (function() {
 
         // now all anchor links will also have to be opened in a new window
         // we could have done this in HTML but i feel it's very redundant
-        $('.content a').attr('target', '_blank');
+        $('.content a, .footer a').attr('target', '_blank');
     }
 
     function onCreateGameButtonClick(e) {
@@ -54,7 +54,7 @@ TGO.Views.welcomeView = (function() {
     function areFieldsNotEmpty() {
         for (var i = 0, j = arguments.length; i < j; i++) {
             var field = arguments[i];
-            if (!field.val() || !field.val().trim()) {
+            if (!field.val() || !field.val()) {
                 TGO.Views.msgbox.show('A required field has no value. Click OK and we will focus on that field.', function() { field.focus(); });
                 return false;
             }

@@ -1,24 +1,25 @@
 // our socket io client
 var io = require('socket.io-client');
+// the names of our AIs will be randomly picked from this list
+var aiNames = [ 'Jayjay', 'Myka', 'Jojo', 'Marjun', 'Joy', 'May Joy' ];
 
-var aiNames = [
-    'Jayjay', 'Myka', 'Jojo', 'Marjun', 'Joy', 'May Joy'
-];
+// this object contains all the event names that will
+// be communicated on Socket.IO, we take this from the
+// server so that we don't have to duplicate the names
+// at client side (see the "connected" IO event)
+var IOEvents;
+// our AI player object
+var player;
 
 /**
  * When our server requests for a new AI player
  * Data: gameId, url (socket URL)
  */
 process.on('message', function(data) {
-
+    // let's connect our socket
     var socket = io.connect(data.url);
-    var player = new AIPlayer(aiNames[Math.floor(Math.random() * aiNames.length)], data.gameId);
-
-    // this object contains all the event names that will
-    // be communicated on Socket.IO, we take this from the
-    // server so that we don't have to duplicate the names
-    // at client side (see the "connected" IO event)
-    var IOEvents;
+    // initialize our AI player
+    player = new AIPlayer(aiNames[Math.floor(Math.random() * aiNames.length)], data.gameId);
 
     // when we connected, we want to watch for some events
     // which are defined in the server (IOEvents)
@@ -39,90 +40,18 @@ process.on('message', function(data) {
             gameId: player.gameId
         });
     });
+
     socket.on('disconnected', function() {
         console.log('AI player "%s" left the game "%s".', player.name, player.gameId);
     });
 
-    /**
-     * Source:  Socket.IO
-     * Handles: When the server says the player has joined the game
-     * Data:    success, gameId, playerId, playerName
-     */
-    function onPlayerJoined(data) {
-        // we are always the one joining an existing game
-        player.id = data.playerId;
-        player.generatePieces();
-        // then submit immediately after some time
-        // so the human player can view the message
-        setTimeout(function() {
-            socket.emit(IOEvents.SUBMIT_PIECES, {
-                gameId: player.gameId,
-                playerId: player.id,
-                gamePieces: player.pieces
-            });
-        }, 1000);
-    }
-
-    /**
-     * Source:  Socket.IO
-     * Handles: When the player has taken turn
-     * Data:    success, playerId
-     */
-    function onPlayerTakesTurn(data) {
-        if (data.isGameOver) {
-            return;
-        }
-
-        // get the next turn
-        if (data.playerId == player.id) {
-
-            // let's see if the human player challenged and defeated/drawed us
-            if (data.result.isChallenge) {
-                var piece = player.getPiece(data.result.newPosition);
-                if (data.result.isChallenge && data.result.challengeResult != -1) {
-                    // okay we are defeated or drawed
-                    piece.position = -1;
-                }
-            }
-            // let's randomly move our game piece
-            var result = player.movePiece();
-            // select then take turn
-            socket.emit(IOEvents.PIECE_SELECTED, {
-                gameId: player.gameId,
-                position: result.piece.position
-            });
-
-            // emit after some time so the human player can see our selection and move
-            setTimeout(function() {
-                socket.emit(IOEvents.PLAYER_TAKES_TURN, {
-                    gameId: player.gameId,
-                    playerId: player.id,
-                    oldPosition: result.piece.position,
-                    newPosition: result.newPosition
-                });
-            }, 1000);
-        } else {
-            var piece = player.getPiece(data.result.oldPosition);
-            if (data.result.isChallenge && data.result.challengeResult != 1) {
-                piece.position = -1;
-            } else {
-                piece.position = data.result.newPosition;
-            }
-        }
-    }
-
-    /**
-     * Source:  Socket.IO
-     * Handles: A player has left the game by closing his browser
-     *          or navigating to another address
-     */
-    function onPlayerLeft(data) {
-        socket.disconnect();
-        process.exit(0);
-    }
-
 });
 
+/**
+ * @class AIPlayer
+ * @param {String} name   The name of our AI player
+ * @param {String} gameId The ID of the game our AI player will join to
+ */
 function AIPlayer(name, gameId) {
     this.name = name;
     this.gameId = gameId;
@@ -170,13 +99,11 @@ AIPlayer.prototype = {
             positions[i] = positions[j];
             positions[j] = temp;
         }
-
         // now inject the random positions
         for (var i = 0, j = this.pieces.length; i < j; i++) {
             this.pieces[i].position = positions[i];
         }
-
-        // but we simply need our flag at the last row of course
+        // we simply need our flag at the last row randomly
         var position = Math.floor(Math.random() * (71 - 63 + 1)) + 63;
         var piece = this.getPiece(position);
         if (piece) {
@@ -197,7 +124,6 @@ AIPlayer.prototype = {
                 newPosition = this.nextMove(piece);
             }
         } while (!newPosition);
-        console.log('piece choosen: ', piece.code);
         return {
             piece: piece,
             newPosition: newPosition
@@ -217,25 +143,29 @@ AIPlayer.prototype = {
 
         // top and bottom
         nextPosition = position + 9;
-        if (nextPosition < 72 && !this.getPiece(nextPosition)) {
+        if (this.isValidPosition(nextPosition) && !this.getPiece(nextPosition)) {
             nextPositions.push(nextPosition);
         }
         nextPosition = position - 9;
-        if (nextPosition > -1 && !this.getPiece(nextPosition)) {
+        if (this.isValidPosition(nextPosition) && !this.getPiece(nextPosition)) {
             nextPositions.push(nextPosition);
         }
         // left and still on the same row
         nextPosition = position + 1;
-        if (nextPosition < 72 && row == Math.floor((nextPosition) / 9) && !this.getPiece(nextPosition)) {
+        if (this.isValidPosition(nextPosition) && row == Math.floor((nextPosition) / 9) && !this.getPiece(nextPosition)) {
             nextPositions.push(nextPosition);
         }
         // right and still on the same row
         nextPosition = position - 1;
-        if (nextPosition > -1 && row == Math.floor((nextPosition) / 9) && !this.getPiece(nextPosition)) {
+        if (this.isValidPosition(nextPosition) && row == Math.floor((nextPosition) / 9) && !this.getPiece(nextPosition)) {
             nextPositions.push(nextPosition);
         }
 
         return nextPositions[Math.floor(Math.random() * nextPositions.length)];
+    },
+
+    isValidPosition: function(position) {
+        return position > -1 && position < 72;
     },
 
     /**
@@ -250,3 +180,88 @@ AIPlayer.prototype = {
         return null;
     }
 };
+
+////////////////////////
+/// IO Event Handlers //
+////////////////////////
+
+/**
+ * Source:  Socket.IO
+ * Handles: When the server says the player has joined the game
+ * Data:    success, gameId, playerId, playerName
+ */
+function onPlayerJoined(data) {
+    // we are always the one joining an existing game
+    player.id = data.playerId;
+    player.generatePieces();
+    // then submit immediately after some time
+    // so the human player can view the message
+    var socket = this;
+    setTimeout(function() {
+        socket.emit(IOEvents.SUBMIT_PIECES, {
+            gameId: player.gameId,
+            playerId: player.id,
+            gamePieces: player.pieces
+        });
+    }, 1000);
+}
+
+/**
+ * Source:  Socket.IO
+ * Handles: When the player has taken turn
+ * Data:    success, playerId
+ */
+function onPlayerTakesTurn(data) {
+    if (data.isGameOver) {
+        return;
+    }
+
+    // get the next turn
+    if (data.playerId == player.id) {
+
+        // let's see if the human player challenged and defeated/drawed us
+        if (data.result.isChallenge) {
+            var piece = player.getPiece(data.result.newPosition);
+            if (data.result.isChallenge && data.result.challengeResult != -1) {
+                // okay we are defeated or drawed
+                piece.position = -1;
+            }
+        }
+        // let's randomly move our game piece
+        var result = player.movePiece();
+        // emit selection so the human player can view which piece we are going to move
+        this.emit(IOEvents.PIECE_SELECTED, {
+            gameId: player.gameId,
+            position: result.piece.position
+        });
+
+        var socket = this;
+        // emit after some time so the human player can see our selection and move
+        setTimeout(function() {
+            socket.emit(IOEvents.PLAYER_TAKES_TURN, {
+                gameId: player.gameId,
+                playerId: player.id,
+                oldPosition: result.piece.position,
+                newPosition: result.newPosition
+            });
+        }, 1000);
+
+    } else {
+        var piece = player.getPiece(data.result.oldPosition);
+        if (data.result.isChallenge && data.result.challengeResult != 1) {
+            piece.position = -1;
+        } else {
+            piece.position = data.result.newPosition;
+        }
+    }
+}
+
+/**
+ * Source:  Socket.IO
+ * Handles: A player has left the game by closing his browser
+ *          or navigating to another address
+ */
+function onPlayerLeft(data) {
+    this.disconnect();
+    process.exit(0);
+}

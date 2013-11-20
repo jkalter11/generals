@@ -14,8 +14,8 @@ TGO.Views.gameView = (function() {
     //      submit the game pieces (readyButton)
     //      play the game again (newGameButton)
     var readyButton, newGameButton, playAIButton;
-    // and our game board jQuery object
-    var gameBoard;
+    // and our game board jQuery object and numbers
+    var gameBoard, gameBoardNumbers;
     // flag that controls whether the player con move his game pieces or not
     var isGameBoardLocked = false;
     // flag that controls whether the view is animating something
@@ -42,6 +42,15 @@ TGO.Views.gameView = (function() {
             tbody.append('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>')
         }
         gameBoard.append(tbody);
+        // let's build the game board numbers for testing purposes only
+        /*
+        gameBoardNumbers = $('#game-board-numbers');
+        var tbody = $('<tbody></tbody>');
+        for (var i = 0; i < 8; i++) {
+            tbody.append('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>')
+        }
+        gameBoardNumbers.append(tbody);
+        */
 
         fallenPieces = $('#fallen-pieces');
 
@@ -99,7 +108,7 @@ TGO.Views.gameView = (function() {
      */
     function onGameCreated() {
         gameId.val(game.id);
-        setGameMessage('WELCOME <span class="highlight">%s</span>! Your game ID is <span class="highlight">%s</span>. Send this to your opponent or play against AI.', game.playerName, game.id);
+        setGameMessage('WELCOME <span class="highlight">%s</span>! Your game ID is <span class="highlight">%s</span>. Send this to your opponent or if you want to practice, play against an AI.', game.playerName, game.id);
     }
 
     /**
@@ -143,6 +152,7 @@ TGO.Views.gameView = (function() {
                     .find('tr:nth-child(' + row + ') td:nth-child(' + column + ')')
                     .attr('data-pos', position)
                     .data('position', position);
+                //gameBoardNumbers.find('tr:nth-child(' + row + ') td:nth-child(' + column + ')').html(position);
                 if (row > 5) {
                     td.addClass('initialized');
                 }
@@ -160,6 +170,7 @@ TGO.Views.gameView = (function() {
                     .find('tr:nth-child(' + row + ') td:nth-child(' + column + ')')
                     .attr('data-pos', position)
                     .data('position', position);
+                //gameBoardNumbers.find('tr:nth-child(' + row + ') td:nth-child(' + column + ')').html(position);
                 if (row > 5) {
                     td.addClass('initialized');
                 }
@@ -255,10 +266,10 @@ TGO.Views.gameView = (function() {
     function onGamePiecesSubmitted(playerId, positions, isStarted) {
         // if we are the player who submits it
         if (game.playerId == playerId) {
-            setGameMessage('Game pieces submitted. Waiting for <span class="highlight">%s</span>.', game.opponentName);
+            setGameMessage('Game pieces submitted. Waiting for <span class="highlight">%s</span> to submit game pieces.', game.opponentName);
         } else {
             if (!isStarted) {
-                setGameMessage('<span class="highlight">%s</span> has submitted his/her game pieces.', game.opponentName);
+                setGameMessage('<span class="highlight">%s</span> has submitted game pieces. Submit yours after arranging them.', game.opponentName);
                 // allow the user submit game pieces
                 readyButton.show();
             }
@@ -285,6 +296,7 @@ TGO.Views.gameView = (function() {
         setGameMessage('Waiting for <span class="highlight">%s\'s</span> move. Please wait.', game.opponentName);
         isGameBoardLocked = true;
         hasStarted = true;
+        gameBoard.find('.game-piece').not('.opponent').removeClass('selected');
     }
 
     function clearSelectionStyles() {
@@ -521,6 +533,7 @@ TGO.Views.gameView = (function() {
             } else if (moveResult.challengeResult == 0) {
                 throwGamePiece(opponentPiece);
                 throwGamePiece(gamePiece);
+                callback();
             } else {
                 throwGamePiece(gamePiece);
                 moveGamePiece(opponentPiece, newParent, callback);
@@ -532,11 +545,11 @@ TGO.Views.gameView = (function() {
 
     function showGameOver(data) {
         if (data.playerId) {
-            if (data.is30MoveRule) {
+            if (data.is50MoveRule) {
                 if (data.playerId == game.playerId) {
-                    setGameMessage('<span class="highlight">YOU WIN BY THE 30-MOVE RULE!</span>');
+                    setGameMessage('<span class="highlight">YOU WIN BY THE 50-MOVE RULE!</span>');
                 } else {
-                    setGameMessage('<span class="highlight">YOU LOSE BY THE 30-MOVE RULE!</span>');
+                    setGameMessage('<span class="highlight">YOU LOSE BY THE 50-MOVE RULE!</span>');
                 }
             } else {
                 if (data.playerId == game.playerId) {
@@ -546,7 +559,7 @@ TGO.Views.gameView = (function() {
                 }
             }
         } else {
-            setGameMessage('<span class="highlight">THIS GAME IS A DRAW BY THE 30-MOVE RULE!</span>');
+            setGameMessage('<span class="highlight">THIS GAME IS A DRAW BY THE 50-MOVE RULE!</span>');
         }
 
         // then, let's reveal all the opponent pieces
@@ -559,7 +572,12 @@ TGO.Views.gameView = (function() {
                 }
             }
         }
-
+        var lastPieceMoved = $('.game-piece.selected');
+        clearSelectionStyles();
+        if (lastPieceMoved.length) {
+            lastPieceMoved.addClass('selected');
+            lastPieceMoved.parent().addClass('target');
+        }
         isGameBoardLocked = true;
     }
 

@@ -86,7 +86,7 @@ function Game() {
     this.state = Game.States.INITIALIZED;
 
     // this flag holds the number of consecutive moves where there is challenge
-    // after that 30 moves, each player's pieces will be computed and the larger's
+    // after that 50 moves, each player's pieces will be computed and the larger's
     // value will be declared the winner (or draw if both are equal)
     this.noChallengeCount = 0;
 }
@@ -170,6 +170,7 @@ Game.prototype.setPlayerPieces = function(playerId, pieces) {
  *                                        -1 if challenger loses
  */
 Game.prototype.challenge = function(challenger, challenged) {
+
     // equal ranks that are not flag, both pieces are eliminated
     if (challenger.rank == challenged.rank && challenger.rank) {
         return 0;
@@ -211,16 +212,15 @@ Game.prototype.takeTurn = function(playerId, oldPosition, newPosition) {
         throw new Error('Player ID passed is not the current player');
     }
 
-    console.log('%s: %d -> %d', playerId, oldPosition, newPosition);
-
     var player = this.getPlayer(playerId);
     var piece = player.getPiece(oldPosition);
     var result = this.board.movePiece(player, piece, newPosition, this.challenge);
+
     // let's move the piece, if a valid move, then change the current player and return true
     if (result.success) {
         this.currentPlayer = this.currentPlayer == this.playerA ? this.playerB : this.playerA;
     }
-    // and to keep track of the 30-move rule
+    // and to keep track of the 50-move rule
     if (result.isChallenge) {
         this.noChallengeCount = 0;
     } else {
@@ -252,8 +252,8 @@ Game.prototype.checkGameOver = function() {
         this.currentPlayer = this.playerA;
         return true;
     }
-    // now we'll see if the 30-move rule has been reached
-    if (this.noChallengeCount > 30) {
+    // now we'll see if the 50-move rule has been reached
+    if (this.noChallengeCount > 50) {
         this.state = Game.States.OVER;
         var valueA = this.playerA.value();
         var valueB = this.playerB.value();
@@ -552,13 +552,16 @@ Board.prototype.movePiece = function(player, piece, newPosition, challengeCallba
     } else {
         result.isChallenge = true;
         result.challengeResult = challengeCallback(piece, newPositionPiece);
-        if (result.challengeResult !== -1) {
+
+        if (result.challengeResult === 1) {
             // since this is a challenge and you beat the newPositionPiece
-            // remove this from the board or both are NOT equal ranks
             newPositionPiece.position = -1;
             // let's move to the target position
             this.pieces[newPosition] = piece;
             piece.position = newPosition;
+        } else if (result.challengeResult === 0) {
+            newPositionPiece.position = -1;
+            this.pieces[newPosition] = null;
         }
     }
     return result;

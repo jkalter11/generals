@@ -264,7 +264,7 @@ function onPlayerTakesTurn(data) {
                 result: result,
                 isGameOver: isGameOver,
                 pieces: pieces,
-                is30MoveRule: game.noChallengeCount > 30
+                is50MoveRule: game.noChallengeCount > 50
             });
         } else {
             this.emit(IOEvents.PLAYER_TAKES_TURN, {
