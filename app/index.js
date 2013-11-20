@@ -10,7 +10,7 @@ var app = express();
 
 // the port number shall depend on the environment variable PORT
 // if available, if not, let's use 3000
-var server = app.listen(process.env.port || 3000);
+var server = app.listen(process.env.PORT || 3000);
 
 // Create a Socket.IO server and attach it to the HTTP server
 var io = require('socket.io').listen(server);
