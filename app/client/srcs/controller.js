@@ -80,8 +80,8 @@ function onGameCreated(data) {
 function onViewPlayAI() {
     socket.emit(IOEvents.PLAY_AI, {
         gameId: game.id,
-        // THINK: i have been looking for a way to get this url from the server
-        // but i am not successful, so we just get it here
+        // THINK: i have been looking for a way to get this url from the server side
+        // but i am not successful, so we just get it here, Node/Express needs more documentation
         url: window.location.href
     });
 }
@@ -113,12 +113,12 @@ function onPlayerJoined(data) {
             // we are joining this existing game
             game.init(data.gameId, data.playerId, data.playerName);
             game.opponentName = data.opponentName;
-            // we did not create this game,
-            // we joined this game
+            // we did not create this game, we joined this game
             game.isCreated = false;
             // update the view
             mainView.showGameView(function() {
                 gameView.onPlayerJoined(false);
+                // let's prepare our game pieces
                 game.generatePieces();
                 gameView.onGamePiecesCreated();
             });
@@ -211,8 +211,7 @@ function onViewMovesGamePiece(data) {
  * Handles: A player has left the game by closing his browser
  *          or navigating to another address
  */
-function onPlayerLeft(data) {
-    console.log(data)
+function onPlayerLeft() {
     msgbox.show('Your opponent has left the game. This game is over.', function() {
         window.location.reload();
     });

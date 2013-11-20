@@ -95,11 +95,6 @@ module.exports = {
  */
 function onCreateGame(data) {
 
-    // let's do a clean up everytime a new game is requested
-    // NOTE: Although we can do this outside of the application
-    //       but we can do this for now, let's just take note.
-    purgeGameDb();
-
     try {
         // let's create a new game
         var game = new gm.Game();
@@ -279,13 +274,24 @@ function onPlayerTakesTurn(data) {
 }
 
 function onDisconnect() {
+
+    var hasPlayerDisconnected = false;
+
     // let's emit an event ONLY when we are not in the default blank room
     for (var room in io.sockets.manager.roomClients[this.id]) {
         if (room) {
             // this client has joined this non-empty room, hence we will notify
             // all the clients of this room that this client has left
             io.sockets.in(room.substr(1)).emit('player-left');
+            hasPlayerDisconnected = true;
         }
+    }
+
+    if (hasPlayerDisconnected) {
+        // let's do a clean up everytime a game is done
+        // NOTE: Although we can do this outside of the application
+        //       but we can do this for now, let's just take note.
+        purgeGameDb();
     }
 }
 

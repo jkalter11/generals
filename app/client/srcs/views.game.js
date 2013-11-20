@@ -9,13 +9,14 @@ TGO.Views.gameView = (function() {
     var game = TGO.Models.game;
     // the following are jQuery objects which represents different DOM
     // elements that will be updated upon game state changes
-    var message, gameId, fallenPieces;
+    var message, fallenPieces;
     // some user action buttons to
     //      submit the game pieces (readyButton)
     //      play the game again (newGameButton)
+    //      practice (playAIButton)
     var readyButton, newGameButton, playAIButton;
-    // and our game board jQuery object and numbers
-    var gameBoard, gameBoardNumbers;
+    // and our game board jQuery object and numbers (for testing), and a cache for our tds
+    var gameBoard, gameBoardNumbers, gameBoardTDs;
     // flag that controls whether the player con move his game pieces or not
     var isGameBoardLocked = false;
     // flag that controls whether the view is animating something
@@ -23,6 +24,8 @@ TGO.Views.gameView = (function() {
     // flag that controls whether any player has made a single move
     // or basically if the game has actually started
     var hasStarted = false;
+    // this is a hack just to help keep the styles because websockets are too quick to respond
+    var isAgainstAI = false;
 
     /**
      * Initializes our jQuery view objects
@@ -31,10 +34,7 @@ TGO.Views.gameView = (function() {
      */
     function init() {
         message = $('.game-message');
-        gameId = $('.game-id');
-        gameId.on('click', function() {
-            $(this).select();
-        });
+
         // let's build the game board
         gameBoard = $('#game-board');
         var tbody = $('<tbody></tbody>');
@@ -42,15 +42,17 @@ TGO.Views.gameView = (function() {
             tbody.append('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>')
         }
         gameBoard.append(tbody);
+        gameBoardTDs = gameBoard.find('td');
+
         // let's build the game board numbers for testing purposes only
-        /*
-        gameBoardNumbers = $('#game-board-numbers');
-        var tbody = $('<tbody></tbody>');
-        for (var i = 0; i < 8; i++) {
-            tbody.append('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>')
+        if (TGO.debug) {
+            gameBoardNumbers = $('#game-board-numbers');
+            var tbody = $('<tbody></tbody>');
+            for (var i = 0; i < 8; i++) {
+                tbody.append('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>')
+            }
+            gameBoardNumbers.append(tbody);
         }
-        gameBoardNumbers.append(tbody);
-        */
 
         fallenPieces = $('#fallen-pieces');
 
@@ -61,7 +63,8 @@ TGO.Views.gameView = (function() {
         playAIButton.on('click', function() {
             view.emit(TGO.Views.Events.PLAY_AI);
             playAIButton.hide();
-            setGameMessage('Contacting server for AI player. Please wait...')
+            setGameMessage('Contacting server for AI player. Please wait...');
+            isAgainstAI = true;
         });
 
         newGameButton = $('#new-game');
@@ -108,7 +111,6 @@ TGO.Views.gameView = (function() {
      * @param  {Object} _game The game object
      */
     function onGameCreated() {
-        gameId.val(game.id);
         setGameMessage('WELCOME <span class="highlight">%s</span>! Your game ID is <span class="highlight">%s</span>. Send this to your opponent or if you want to practice, play against an AI.', game.playerName, game.id);
     }
 
@@ -128,7 +130,6 @@ TGO.Views.gameView = (function() {
 
         playAIButton.hide();
         readyButton.show();
-        gameId.val(game.id);
         initGameBoardPositions();
     }
 
@@ -153,7 +154,9 @@ TGO.Views.gameView = (function() {
                     .find('tr:nth-child(' + row + ') td:nth-child(' + column + ')')
                     .attr('data-pos', position)
                     .data('position', position);
-                //gameBoardNumbers.find('tr:nth-child(' + row + ') td:nth-child(' + column + ')').html(position);
+                if (TGO.debug) {
+                    gameBoardNumbers.find('tr:nth-child(' + row + ') td:nth-child(' + column + ')').html(position);
+                }
                 if (row > 5) {
                     td.addClass('initialized');
                 }
@@ -171,7 +174,9 @@ TGO.Views.gameView = (function() {
                     .find('tr:nth-child(' + row + ') td:nth-child(' + column + ')')
                     .attr('data-pos', position)
                     .data('position', position);
-                //gameBoardNumbers.find('tr:nth-child(' + row + ') td:nth-child(' + column + ')').html(position);
+                if (TGO.debug) {
+                    gameBoardNumbers.find('tr:nth-child(' + row + ') td:nth-child(' + column + ')').html(position);
+                }
                 if (row > 5) {
                     td.addClass('initialized');
                 }
@@ -287,7 +292,7 @@ TGO.Views.gameView = (function() {
     }
 
     function waitPlayersTurn() {
-        setGameMessage('<span class="highlight">YOUR TURN! MAKE YOUR MOVE.</span>');
+        setGameMessage('<span class="highlight">YOUR TURN!</span> Make your move.');
         isGameBoardLocked = false;
         hasStarted = true;
         clearSelectionStyles();
@@ -297,15 +302,21 @@ TGO.Views.gameView = (function() {
         setGameMessage('Waiting for <span class="highlight">%s\'s</span> move. Please wait.', game.opponentName);
         isGameBoardLocked = true;
         hasStarted = true;
-        clearSelectionStyles();
+        // this is a little hack since AI's responds so quickly the selections are cleared immediately
+        // so we don't have to clear all selections for AI
+        if (isAgainstAI) {
+            gameBoard.find('.game-piece').not('.opponent').removeClass('selected');
+        } else {
+            clearSelectionStyles();
+        }
     }
 
     function clearSelectionStyles() {
         gameBoard.find('.game-piece').removeClass('selected');
-        gameBoard.find('td').removeClass('challengeable')
-                            .removeClass('possible-move');
+        gameBoardTDs.removeClass('challengeable')
+                    .removeClass('possible-move');
         if (hasStarted) {
-            gameBoard.find('td').removeClass('initialized');
+            gameBoardTDs.removeClass('initialized');
         }
     }
 
@@ -398,7 +409,7 @@ TGO.Views.gameView = (function() {
         while (newParent.prop('tagName') != 'TD') {
             newParent = newParent.parent();
         }
-        // if the parent is not a target parent, then we should not
+        // if the parent is not a target parent, then we should not allow moving this piece
         if (hasStarted &&
             !newParent.hasClass('possible-move') &&
             !newParent.hasClass('challengeable')) {
@@ -450,7 +461,11 @@ TGO.Views.gameView = (function() {
                 piece2.position = currentParent.data('pos');
             }
             // then the animations
-            currentParent.addClass('target');
+            if (newParentChild.length) {
+                // the current parent will also be a target
+                // when we are swapping game pieces
+                currentParent.addClass('target');
+            }
             newParent.addClass('target');
             // let's track if both animations are done
             // because we want to do "something" after both
@@ -507,7 +522,11 @@ TGO.Views.gameView = (function() {
         // if this is your game piece, then we will show it in the fallen pieces list
         // but if an opponent, remove it from the board
         if (gamePiece.hasClass('opponent')) {
-            gamePiece.remove();
+            isAnimating = true;
+            gamePiece.fadeOut('fast', function() {
+                gamePiece.remove();
+                isAnimating = false;
+            });
         } else {
             isAnimating = true;
             TGO.Views.utils.moveElementAnim(gamePiece, fallenPieces, function() {
@@ -566,13 +585,13 @@ TGO.Views.gameView = (function() {
         // then, let's reveal all the opponent pieces
         for (var i = 0; i < data.pieces.length; i++) {
             if (data.pieces[i].position != -1) {
-                var gamePiece = gameBoard.find('td[data-pos="' + data.pieces[i].position + '"] .game-piece');
-                if (gamePiece.hasClass('opponent')) {
-                    gamePiece.addClass('game-piece-' + data.pieces[i].code);
-                    gamePiece.html('<span class="code">' + data.pieces[i].code + '</span>');
-                }
+                var gamePiece = gameBoard.find('td[data-pos="' + data.pieces[i].position + '"] .game-piece.opponent');
+                gamePiece.addClass('game-piece-' + data.pieces[i].code);
+                gamePiece.html('<span class="code">' + data.pieces[i].code + '</span>');
             }
         }
+
+        // the last piece moved (that caused the win) should be highlighted
         var lastPieceMoved = $('.game-piece.selected');
         clearSelectionStyles();
         if (lastPieceMoved.length) {

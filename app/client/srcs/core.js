@@ -1,7 +1,8 @@
 window.TGO = {
-    appName: 'The Generals Online v0.0.1',
+    appName: 'The Generals Online v0.1.0',
     Models: {},
-    Views: {}
+    Views: {},
+    debug: false
 };
 
 /**
@@ -42,7 +43,6 @@ TGO.Models.game = {
     },
 
     generatePieces: function() {
-        this.pieces.length = 0;
         this.pieces.push({ code: 'GOA' });
         this.pieces.push({ code: 'SPY' });
         this.pieces.push({ code: 'SPY' });
@@ -62,8 +62,7 @@ TGO.Models.game = {
             this.pieces.push({ code: 'PVT' });
         }
 
-        // now let's add the positions randomly
-        // first lets build the array
+        // now let's add the positions randomly, first lets build the array
         var start = 0, end = 26;
         if (!this.isCreated) {
             start = 45, end = 71;
@@ -73,11 +72,11 @@ TGO.Models.game = {
             positions.push(start);
             start++;
         }
-        // simple randomization
+        // simple array shuffle algorithm
         positions.sort(function() {
             return Math.random() - 0.5;
         });
-        // now inject the random positions
+        // now inject the random positions to the game pieces
         for (var i = 0, j = this.pieces.length; i < j; i++) {
             this.pieces[i].position = positions[i];
         }
