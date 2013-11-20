@@ -6,12 +6,7 @@ body {
     color: #fff;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
@@ -116,6 +111,8 @@ hr {
     text-shadow: 0 0 40px #a6fa62;
     text-decoration: none;
     text-align: center;
+    background: url('beta.png') no-repeat top left;
+    background-size: 90px;
 }
 
 .container > .header > a:hover {
@@ -144,6 +141,7 @@ hr {
 
 .game-menu {
     margin-top: 20px;
+    padding-bottom: 30px;
     float: right;
     width: 300px;
     -moz-box-sizing: border-box;
@@ -207,15 +205,14 @@ hr {
 
 .misc-attributions {
     border-radius: 10px;
-    padding: 5px 0 25px 0;
+    padding: 5px 0 5px 0;
     text-align: center;
     color: #fff;
 }
 
 .misc-attributions h4 {
-    margin: 35px 0 5px 0;
-    color: #aaa;
-    background-color: #333;
+    margin: 5px 0 5px 0;
+    color: #777;
     border-radius: 10px;
     padding: 3px 0;
 }
@@ -285,7 +282,6 @@ hr {
     text-align: left;
     font: bold 15px Helvetica,Arial,sans-serif;
     background-color: inherit;
-    border-bottom: 2px solid #a6fa62;
 }
 
 .game-board-container {
@@ -501,4 +497,11 @@ hr {
 #fallen-pieces .game-piece {
     float: left;
     margin: 0 5px 5px 0;
+}
+
+.beta-note {
+    margin: 30px;
+    text-align: center;
+    font-size: 13px;
+    text-shadow: 0 0 10px;
 }

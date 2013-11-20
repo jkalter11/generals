@@ -1,5 +1,6 @@
 {
     "name": "generals",
+    "version": "0.1.0",
     "description": "The Game of the Generals Online is the online version of the Filipino-invented board game 'Game of The Generals', also called GG as it is most fondly called, or simply The Generals. It is an educational wargame invented in the Philippines by Sofronio H. Pasola, Jr. in 1970.",
     "author": {
         "name": "Marjun Tacder",

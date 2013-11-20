@@ -61,6 +61,7 @@ TGO.Views.gameView = (function() {
         playAIButton.on('click', function() {
             view.emit(TGO.Views.Events.PLAY_AI);
             playAIButton.hide();
+            setGameMessage('Contacting server for AI player. Please wait...')
         });
 
         newGameButton = $('#new-game');
@@ -296,7 +297,7 @@ TGO.Views.gameView = (function() {
         setGameMessage('Waiting for <span class="highlight">%s\'s</span> move. Please wait.', game.opponentName);
         isGameBoardLocked = true;
         hasStarted = true;
-        gameBoard.find('.game-piece').not('.opponent').removeClass('selected');
+        clearSelectionStyles();
     }
 
     function clearSelectionStyles() {

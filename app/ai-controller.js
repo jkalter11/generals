@@ -1,35 +1,24 @@
-// our socket io client
 var io = require('socket.io-client');
 // the names of our AIs will be randomly picked from this list
-var aiNames = [ 'Jayjay', 'Myka', 'Jojo', 'Marjun', 'Joy', 'May Joy' ];
+var aiNames = [
+    'Jay-jay', 'Myka', 'Jojo', 'Marjun', 'Joy', 'Mary Joy', 'Primo', 'JayR',
+    'Dodong', 'LG', 'John', 'GM', 'Gorio', 'Boy', 'Carmen', 'Bossing', 'En-en',
+    'Ayen', 'Bebe', 'Dondon', 'Dayne'
+    ];
 
-// this object contains all the event names that will
-// be communicated on Socket.IO, we take this from the
-// server so that we don't have to duplicate the names
-// at client side (see the "connected" IO event)
-var IOEvents;
-// our AI player object
-var player;
+var IOEvents, player;
 
-/**
- * When our server requests for a new AI player
- * Data: gameId, url (socket URL)
- */
 process.on('message', function(data) {
-    // let's connect our socket
     var socket = io.connect(data.url);
-    // initialize our AI player
+
     player = new AIPlayer(aiNames[Math.floor(Math.random() * aiNames.length)], data.gameId);
 
-    // when we connected, we want to watch for some events
-    // which are defined in the server (IOEvents)
     socket.on('connected', function(data) {
-        // let's get the event names from the server
+
         IOEvents = data;
 
         console.log('AI player "%s" connected to game "%s".', player.name, player.gameId);
 
-        // now let's attach all our IO events (the only event that matters for our AI)
         socket.on(IOEvents.PLAYER_JOINED, onPlayerJoined);
         socket.on(IOEvents.PLAYER_TAKES_TURN, onPlayerTakesTurn);
         socket.on(IOEvents.PLAYER_LEFT, onPlayerLeft);

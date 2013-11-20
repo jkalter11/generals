@@ -9,6 +9,12 @@ exports.handle = function(app, controller, config) {
         response.render('index.html');
     });
 
+    app.get('/purge-db', function(request, response) {
+        response.send({
+            gameCount: controller.purgeGameDb()
+        });
+    });
+
     app.get('/stats', function(request, response) {
         response.send({
             gameCount: controller.gameDb.count.toLocaleString()
