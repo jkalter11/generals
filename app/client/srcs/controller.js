@@ -1,3 +1,5 @@
+(function() {
+
 /**
  * Handles OI Server-Client Communication
  */
@@ -35,6 +37,7 @@ socket.on('connected', function(data) {
 // handle view events
 welcomeView.on(TGO.Views.Events.CREATE_GAME, onViewCreateGame);
 welcomeView.on(TGO.Views.Events.JOIN_GAME, onViewJoinGame);
+
 gameView.on(TGO.Views.Events.PLAY_AI, onViewPlayAI);
 gameView.on(TGO.Views.Events.SUBMIT_PIECES, onViewSubmitPieces);
 gameView.on(TGO.Views.Events.GAME_PIECE_SELECTED, onViewGamePieceSelected);
@@ -214,3 +217,5 @@ function onPlayerLeft(data) {
         window.location.reload();
     });
 }
+
+})();
