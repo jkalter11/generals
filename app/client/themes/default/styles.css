@@ -363,10 +363,11 @@ hr {
 }
 
 .board-instructions {
-    margin-top: 5px;
+    margin-top: 50px;
+    border-top: 1px dashed #fff;
+    border-bottom: 1px dashed #fff;
     width: 675px;
     font: bold 12px Consolas,Monaco,monospace;
-    font-style: italic;
 }
 
 /* game piece styles */

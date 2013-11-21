@@ -322,6 +322,8 @@ function purgeGameDb() {
             deleted++;
         }
     }
+
+    console.log('Game DB purged. Deleted %s games.', deleted);
 }
 
 /**

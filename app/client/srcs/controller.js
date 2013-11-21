@@ -213,7 +213,7 @@ function onViewMovesGamePiece(data) {
  */
 function onPlayerLeft() {
     msgbox.show('Your opponent has left the game. This game is over.', function() {
-        window.location.reload();
+        window.location.href = window.location.href;
     });
 }
 

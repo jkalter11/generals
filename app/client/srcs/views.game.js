@@ -39,7 +39,7 @@ TGO.Views.gameView = (function() {
         gameBoard = $('#game-board');
         var tbody = $('<tbody></tbody>');
         for (var i = 0; i < 8; i++) {
-            tbody.append('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>')
+            tbody.append('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
         }
         gameBoard.append(tbody);
         gameBoardTDs = gameBoard.find('td');
@@ -49,7 +49,7 @@ TGO.Views.gameView = (function() {
             gameBoardNumbers = $('#game-board-numbers');
             var tbody = $('<tbody></tbody>');
             for (var i = 0; i < 8; i++) {
-                tbody.append('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>')
+                tbody.append('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
             }
             gameBoardNumbers.append(tbody);
         }
@@ -57,7 +57,16 @@ TGO.Views.gameView = (function() {
         fallenPieces = $('#fallen-pieces');
 
         readyButton = $('#ready');
-        readyButton.on('click', onReadyButtonClick);
+        readyButton.on('click', function(e) {
+            e.stopPropagation();
+            view.emit(TGO.Views.Events.SUBMIT_PIECES, {
+                gameId: game.id,
+                playerId: game.playerId,
+                gamePieces: getGamePiecesOnBoard()
+            });
+            playAIButton.hide();
+            readyButton.hide();
+        });
 
         playAIButton = $('#play-ai');
         playAIButton.on('click', function() {
@@ -70,7 +79,7 @@ TGO.Views.gameView = (function() {
         newGameButton = $('#new-game');
         newGameButton.on('click', function(e) {
             e.stopPropagation();
-            window.location.reload();
+            window.location.href = window.location.href;
         });
 
         viewCheatSheetButton = $('#view-cheat-sheet');
@@ -86,8 +95,26 @@ TGO.Views.gameView = (function() {
             }
         });
 
-        gameBoard.on('contextmenu', onGamePieceMoved);
-        gameBoard.delegate('.game-piece', 'click', onGamePieceSelected);
+        gameBoard.on('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            onGamePieceMoved($(e.target), false);
+        });
+        gameBoard.on('contextmenu', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            onGamePieceMoved($(e.target), true);
+        });
+        gameBoard.delegate('.game-piece', 'click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            var gamePiece = $(this);
+            if (gamePiece.hasClass('opponent')) {
+                onGamePieceMoved(gamePiece.parent(), false);
+            } else {
+                onGamePieceSelected($(this));
+            }
+        });
     }
 
     /**
@@ -237,20 +264,6 @@ TGO.Views.gameView = (function() {
     }
 
     /**
-     * Handles the event when the ready button was clicked
-     */
-    function onReadyButtonClick(e) {
-        e.stopPropagation();
-        view.emit(TGO.Views.Events.SUBMIT_PIECES, {
-            gameId: game.id,
-            playerId: game.playerId,
-            gamePieces: getGamePiecesOnBoard()
-        });
-        playAIButton.hide();
-        readyButton.hide();
-    }
-
-    /**
      * Get the game pieces on the board for submission
      * NO opponent game pieces should be included if available
      * @return {Array} The game pieces
@@ -355,10 +368,7 @@ TGO.Views.gameView = (function() {
     /**
      * Handles the event when the user clicks on a game piece
      */
-    function onGamePieceSelected(e) {
-        e.stopPropagation();
-        var gamePiece = $(this);
-
+    function onGamePieceSelected(gamePiece) {
         // we can't select anything if we are in the first two states
         // and we can't select an opponent's game piece
         if (isGameBoardLocked ||
@@ -392,9 +402,7 @@ TGO.Views.gameView = (function() {
      * Handles the event where the user right clicks
      * the gameboard or a game piece to swap/challenge
      */
-    function onGamePieceMoved(e) {
-        e.stopPropagation();
-        e.preventDefault();
+    function onGamePieceMoved(newParent, swap) {
 
         if (isGameBoardLocked || isAnimating) {
             return;
@@ -405,10 +413,14 @@ TGO.Views.gameView = (function() {
             return;
         }
 
-        var newParent = $(e.target);
-        while (newParent.prop('tagName') != 'TD') {
-            newParent = newParent.parent();
+        // if we want to swap, we need to make sure our newParent
+        // is actually a parent (TD) element
+        if (swap) {
+            while (newParent.prop('tagName') != 'TD') {
+                newParent = newParent.parent();
+            }
         }
+
         // if the parent is not a target parent, then we should not allow moving this piece
         if (hasStarted &&
             !newParent.hasClass('possible-move') &&

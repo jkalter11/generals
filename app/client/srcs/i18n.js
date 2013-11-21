@@ -46,6 +46,6 @@ window.i18n.en = function() {
         'new-game-button': 'New Game',
         'view-cheat-sheet-button': 'View Cheat Sheet',
         'play-ai-button': 'PRACTICE FIRST',
-        'board-instructions': 'LEFT-CLICK : Select your own game piece<br>RIGHT-CLICK: To move your game piece to an empty square<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To challenge an opponent\'s game piece'
+        'board-instructions': '<pre>LEFT CLICK:  Select your own game piece\n             Move your own game piece to another square\n             Challenge an opponent\'s game piece (left click an opponent\'s game piece)\nRIGHT CLICK: Swap your own game pieces during arranging your own game pieces\n             Alternative to moving your own game piece</pre>'
     };
 };
