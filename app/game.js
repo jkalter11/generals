@@ -226,6 +226,8 @@ Game.prototype.takeTurn = function(playerId, oldPosition, newPosition) {
     } else {
         this.noChallengeCount++;
     }
+    // and we will let the players know of the noChallengeCount
+    result.noChallengeCount = this.noChallengeCount;
     return result;
 };
 
@@ -323,7 +325,6 @@ Game.States = {
  * @description    Represents the client side player data and behaviour
  */
 function Player(id, name) {
-    // let's initialize our properties
     this.id = id;
     this.name = name;
     this.pieces = null;
@@ -352,7 +353,6 @@ Player.prototype.setPieces = function(pieces) {
     if (allRanks.length) {
         throw new Error('The following ranks are NOT found: ' + JSON.stringify(allRanks));
     }
-    // so we are good
     this.pieces = pieces;
 };
 
@@ -397,14 +397,15 @@ Player.prototype.value = function() {
             value += this.pieces[i].value;
         }
     }
-    // let's round to 2 decimal places because Javascript is not very good with numbers...tsk3x..
+    // let's round to 2 decimal places because Javascript
+    // is not very good with numbers...tsk3x..
     return Math.round(value * 100) / 100;
 }
 
 /**
  * Get player's game piece by position
  * @param  {Number} position the position of the game piece
- * @return {Object}          The game piece or null if not found
+ * @return {Object}          The game piece
  */
 Player.prototype.getPiece = function(position) {
     for (var i = 0; i < this.pieces.length; i++) {
@@ -419,7 +420,7 @@ Player.prototype.getPiece = function(position) {
  * @class       Piece
  * @description The rank is used in comparing, while value is used for computing when the game is a draw
  *              A position of -1 means the game piece is not on the game board
- * @param       {string} code the 2/3 digit code of the piece
+ * @param       {string} code the 3 digit code of the piece
  */
 function Piece(code) {
     switch(code) {

@@ -506,3 +506,16 @@ hr {
     font-size: 13px;
     text-shadow: 0 0 10px;
 }
+
+/* social media buttons */
+.social-media-links {
+    background-color: #ddd;
+    border: 1px solid #777;
+    border-radius: 5px;
+    padding: 5px;
+    height: 25px;
+    box-shadow: 0 0 10px;
+}
+.social-media-links div {
+    float: left;
+}

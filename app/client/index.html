@@ -6,11 +6,12 @@
 <link rel="stylesheet" href="themes/default/redcat-msgbox.css">
 <link rel="stylesheet" href="themes/default/styles.css">
 <meta http-equiv="content-type" content="text/html;charset=utf-8">
-<meta name="description" content="The Generals Online - Originally, a Filipino-invented board game called The Game of the Generals.">
+<meta name="description" content="The Generals Online - The online version of a Filipino-invented board game called The Game of the Generals.">
 <meta name="author" content="Marjun Tacder">
-<meta name="keywords" content="the generals, generals, the game of the generals">
+<meta name="keywords" content="the game of the generals, the generals online">
 </head>
 <body>
+<div id="fb-root"></div>
 <div class="container">
     <div class="header">
         <select id="language">
@@ -22,6 +23,11 @@
         </a>
     </div>
     <div class="content"></div>
+    <div class="social-media-links">
+        <div class="g-plusone" data-annotation="inline" data-size="medium" data-width="200" data-href="https://plus.google.com/u/0/b/111767637838040294806"></div>
+        <div class="g-plus" data-action="share" data-href="https://plus.google.com/u/0/b/111767637838040294806" data-width="250"></div>
+        <div class="fb-like" data-href="https://www.facebook.com/pages/The-Generals-Online/464208583699184" data-layout="button" data-action="like" data-show-faces="true" data-share="true" data-width="400"></div>
+    </div>
     <div class="footer">
         <div class="author-links">
             <a href="http://mttacder13.blogspot.com/2011/12/free-tong-its-for-windows-pc.html">Free Offline Tong-Its!</a> &bull;
@@ -94,5 +100,28 @@
 <script src="srcs/views.welcome.js"></script>
 <script src="srcs/views.game.js"></script>
 <script src="srcs/controller.js"></script>
+<script>
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=170294633122194";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+</script>
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/platform.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/platform.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
 </body>
 </html>

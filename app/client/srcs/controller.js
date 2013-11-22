@@ -102,8 +102,7 @@ function onViewJoinGame(data) {
  */
 function onPlayerJoined(data) {
     if (data.success) {
-        // if the player is already set, then we assume we are the creator of this game
-        if (game.playerId) {
+        if (game.isCreated) {
             // we are the one creating the game so the player who joins is our opponent
             game.opponentName = data.playerName;
             gameView.onPlayerJoined(true);
