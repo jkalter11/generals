@@ -512,19 +512,28 @@ hr {
 
 /* social media buttons */
 .social-media-links {
-    margin-top: 20px;
+    float: right;
+    width: 370px;
     background-color: #bbb;
     border: 1px solid #777;
     border-radius: 5px;
     padding: 5px;
     box-shadow: 0 0 10px;
 }
-.social-media-links:after {
+
+.social {
+    border-top: 1px solid #edd;
+    padding-top: 20px;
+}
+
+.social:after {
     content: '';
     display: block;
     clear: both;
-    
 }
-.social-media-links div {
-    float: left;
+
+.social > iframe {
+    border: 3px solid #ddd;
+    border-radius: 3px;
+    box-shadow: 0 0 10px;
 }
