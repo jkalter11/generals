@@ -22,7 +22,7 @@ var router = require('./router.js');
 var controller = require('./controller.js');
 
 // Configure express: serve all files under the client folder to be static
-app.use(express.static(__dirname + '/public'));
+app.use(express.static('app/public'));
 
 // Now, let's handle application requests
 router.handle(app, controller);

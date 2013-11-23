@@ -129,7 +129,7 @@ function onCreateGame(data) {
  */
 function onPlayAI(data) {
     // let's fork our AI controller
-    var aiController = proc.fork('app/ai-controller.js');
+    var aiController = proc.fork('app/server/ai-controller.js');
     aiController.on('exit', function() {
         console.log('AI Player exited.');
     });
