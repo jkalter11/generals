@@ -32,10 +32,8 @@ io.set('log level', 1);
 
 // Then, let's listen for connections.
 // Once we receive one, start the game logic
-io.sockets.on('connection', function(socket) {
-    // Handle Socket.IO events and emit some
-    controller.handle(io, socket);
-});
+controller.init(io);
+io.sockets.on('connection', controller.handle);
 
 // Finally, for unit testing, we will expose our the server
 exports.server = server;

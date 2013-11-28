@@ -1,5 +1,6 @@
 // Import our game module
 var gm = require('./game.js');
+
 // Import our AI child process worker
 var proc = require('child_process');
 
@@ -45,14 +46,20 @@ var IOEvents = {
  **************************************************************/
 
 module.exports = {
+
+    init: function(_io) {
+        io = _io;
+        // let's purge the database every xxx hours
+        purgeGameDb(0.017);
+    },
+
     /**
      * This function is called by index.js to handle Socket.IO communications
      * @param io     The Socket.IO object
      * @param socket The Socket object from the connecting client
      */
-    handle: function(_io, _socket) {
+    handle: function(_socket) {
 
-        io = _io;
         socket = _socket;
 
         socket.on(IOEvents.CREATE_GAME, onCreateGame);
@@ -63,32 +70,31 @@ module.exports = {
         socket.on(IOEvents.PLAYER_TAKES_TURN, onPlayerTakesTurn);
         socket.on(IOEvents.DISCONNECT, onDisconnect);
 
-        // we send this event names at client side so it can be re-used
+        // we send the event names at client side so it can be re-used
         socket.emit('connected', IOEvents);
     },
 
     /**
      * Let's expose the game database so that it can be accessed in the router
-     * So that client can request some information from the database
+     * So client can request some information from the database
      */
-    gameDb: gameDb,
-
-    /**
-     * Cleans up our game database with inactive games
-     */
-    purgeGameDb: purgeGameDb
-}
+    gameDb: gameDb
+};
 
 /*********************************************************************************************
  *
  * NOTES:
  *     Most emitted events have a "success" boolean flag to determine success or failure
- *     All error emitted events must have a "message" property that contains the error message
+ *     All error emitted events must have a "error" property that contains the error message
  *
  *********************************************************************************************/
 
+/**************************************************************
+ SOCKET.IO CALLBACKS
+ **************************************************************/
+
 /**
- * Called when a player at client side creates a new game
+ * Called when a player at client side requests to create a new game
  * Handles: IOEvents.CREATE_GAME,
  * Emits:   IOEvents.GAME_CREATED
  * Data:    playerName
@@ -125,15 +131,17 @@ function onCreateGame(data) {
 /**
  * Called when a client wants to practice with AI
  * Handles: IOEvents.PLAY_AI
- * Data:    gameId
+ * Data:    gameId, url
  */
 function onPlayAI(data) {
-    // let's fork our AI controller
-    var aiController = proc.fork('app/server/ai-controller.js');
-    aiController.on('exit', function() {
-        console.log('AI Player exited.');
-    });
-    aiController.send(data);
+    // let's fork our AI controller so that it's going to be run
+    // on a separate process (obviously) more importantly in a
+    // separate thread
+    // Also, the URL component is required since I have no idea
+    // how to get it from the server side
+    proc.fork('app/server/ai-controller.js')
+        .on('exit', function() { console.log('AI player process has exited.'); })
+        .send(data);
 }
 
 /**
@@ -177,6 +185,7 @@ function onPlayerJoin(data) {
  * Data:    gameId, playerId, gamePieces(Array)
  */
 function onSubmitPieces(data) {
+
     try {
         // let's get the game from the database
         var game = gameDb.get(data.gameId);
@@ -185,14 +194,14 @@ function onSubmitPieces(data) {
         game.setPlayerPieces(data.playerId, data.gamePieces);
 
         // now, these game pieces needs to be broadcasted to the other
-        // clients but we don't want to expose the ranks, just the positions
+        // clients but we don't want to expose the ranks (no cheating), just the positions
         var positions = [];
         for (var i = 0; i < data.gamePieces.length; i++) {
             positions.push(data.gamePieces[i].position);
         }
 
         // we emit the IOEvents.PIECES_SUBMITTED just for notification purposes
-        // of the sender and putting the sent game-pieces of the other
+        // of the sender and putting the sent game-pieces of the opponent
         io.sockets.in(game.id).emit(IOEvents.PIECES_SUBMITTED, {
             success: true,
             playerId: data.playerId,
@@ -215,12 +224,7 @@ function onSubmitPieces(data) {
  * data:    gameId, position
  */
 function onPieceSelected(data) {
-    try {
-        // let's get the game from the database
-        this.broadcast.to(data.gameId).emit(IOEvents.PIECE_SELECTED, data);
-    } catch (error) {
-        emitError(this, IOEvents.PIECE_SELECTED, error);
-    }
+    this.broadcast.to(data.gameId).emit(IOEvents.PIECE_SELECTED, data);
 }
 
 /**
@@ -238,6 +242,7 @@ function onPlayerTakesTurn(data) {
     try {
         // let's get the game from the database
         var game = gameDb.get(data.gameId);
+        // make the move
         var result = game.takeTurn(data.playerId, data.oldPosition, data.newPosition);
 
         // let's augment the result object with the passed positions for the opponent
@@ -249,12 +254,13 @@ function onPlayerTakesTurn(data) {
             var isGameOver = game.checkGameOver();
             var pieces = false;
             // if it's game over, we will also send the game
-            // pieces so that there will be no controversy
+            // pieces so that the player can view the opponent's game pieces
             if (isGameOver) {
                 pieces = game.playerA.pieces.concat(game.playerB.pieces);
             }
             io.sockets.in(game.id).emit(IOEvents.PLAYER_TAKES_TURN, {
                 success: true,
+                // if there is no current player, therefore the game is a draw
                 playerId: game.currentPlayer ? game.currentPlayer.id : false,
                 result: result,
                 isGameOver: isGameOver,
@@ -275,23 +281,13 @@ function onPlayerTakesTurn(data) {
 
 function onDisconnect() {
 
-    var hasPlayerDisconnected = false;
-
     // let's emit an event ONLY when we are not in the default blank room
     for (var room in io.sockets.manager.roomClients[this.id]) {
         if (room) {
             // this client has joined this non-empty room, hence we will notify
             // all the clients of this room that this client has left
             io.sockets.in(room.substr(1)).emit('player-left');
-            hasPlayerDisconnected = true;
         }
-    }
-
-    if (hasPlayerDisconnected) {
-        // let's do a clean up everytime a game is done
-        // NOTE: Although we can do this outside of the application
-        //       but we can do this for now, let's just take note.
-        purgeGameDb();
     }
 }
 
@@ -300,9 +296,23 @@ function onDisconnect() {
  **************************************************************/
 
 /**
- * Cleans up our database for orphaned games
+ * A helper method to broadcast an error event, we broadcast the error
+ * to the same event to the same client. We also log them so we can see
+ * what actually happened.
+ * @param  {String} eventName The name of the event
+ * @param  {Object} error     The details of the Error
  */
-function purgeGameDb() {
+function emitError(socket, eventName, error) {
+    console.log(error);
+    console.log(error.stack);
+    socket.emit(eventName, { success: false, error: error.message });
+}
+
+/**
+ * A self-executing function that cleans up our database for orphaned games
+ * This will be called every @hrs
+ */
+function purgeGameDb(hrs) {
     // io.sockets.manager.rooms is a hash, with the room name as a key to an array of socket IDs.
     var gameIds = [];
     for (var key in io.sockets.manager.rooms) {
@@ -324,17 +334,7 @@ function purgeGameDb() {
     }
 
     console.log('Game DB purged. Deleted %s games.', deleted);
-}
 
-/**
- * A helper method to broadcast an error event, we broadcast the error
- * to the same event to the same client. We also log them so we can see
- * what actually happened.
- * @param  {String} eventName The name of the event
- * @param  {Object} error     The details of the Error
- */
-function emitError(socket, eventName, error) {
-    console.log(error);
-    console.log(error.stack);
-    socket.emit(eventName, { success: false, error: error.message });
+    // let's run again in the next 24 hours
+    setTimeout(function() { purgeGameDb(hrs); }, 1000 * 60 * 60 * hrs);
 }

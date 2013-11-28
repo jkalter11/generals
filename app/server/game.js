@@ -188,7 +188,7 @@ Game.prototype.challenge = function(challenger, challenged) {
         return -1;
     }
     // if both flags, challenger wins
-    if (challenger.rank == 0 && challenged.rank == 0) {
+    if (challenger.rank === 0 && challenged.rank === 0) {
         return 1;
     }
     // otherwise, determine based on rank
@@ -361,7 +361,7 @@ Player.prototype.setPieces = function(pieces) {
  * @return {Boolean}
  */
 Player.prototype.hasPieces = function() {
-    return this.pieces != null && this.pieces.length == 21;
+    return this.pieces instanceof Array && this.pieces.length == 21;
 };
 
 /**
@@ -370,7 +370,7 @@ Player.prototype.hasPieces = function() {
  * @return {Boolean}
  */
 Player.prototype.hasPiece = function(piece) {
-    return this.pieces != null && this.pieces.indexOf(piece) !== -1;
+    return this.pieces instanceof Array && this.pieces.indexOf(piece) !== -1;
 };
 
 /**
@@ -400,7 +400,7 @@ Player.prototype.value = function() {
     // let's round to 2 decimal places because Javascript
     // is not very good with numbers...tsk3x..
     return Math.round(value * 100) / 100;
-}
+};
 
 /**
  * Get player's game piece by position
@@ -491,7 +491,7 @@ Board.prototype.placePieces = function(pieces, isPlayerA) {
         }
 
         // check if there is no other piece for that position
-        if (this.pieces[piece.position] != null) {
+        if (this.pieces[piece.position]) {
             throw new Error(util.format('[%s]\'s position (%d) is taken.', piece.code, piece.position));
         }
     }
@@ -544,13 +544,8 @@ Board.prototype.movePiece = function(player, piece, newPosition, challengeCallba
     this.pieces[piece.position] = null;
     piece.position = -1;
 
-    // if this is not a challenge
-    if (newPositionPiece == null) {
-        // let's move to the target position
-        this.pieces[newPosition] = piece;
-        piece.position = newPosition;
-    // or if a challenge, then move your piece
-    } else {
+    // if this is a challenge
+    if (newPositionPiece) {
         result.isChallenge = true;
         result.challengeResult = challengeCallback(piece, newPositionPiece);
 
@@ -564,6 +559,10 @@ Board.prototype.movePiece = function(player, piece, newPosition, challengeCallba
             newPositionPiece.position = -1;
             this.pieces[newPosition] = null;
         }
+    } else {
+        // let's move to the target position
+        this.pieces[newPosition] = piece;
+        piece.position = newPosition;
     }
     return result;
 };
@@ -590,8 +589,7 @@ Board.prototype.isNewPositionValid = function(oldPos, newPos) {
  */
 Board.prototype.hasFlagReachedEnd = function(player, isPlayerA) {
     return (
-        player.getFlag().position >= (isPlayerA ? 63 : 0)
-        && player.getFlag().position <= (isPlayerA ? 71 : 8)
+        player.getFlag().position >= (isPlayerA ? 63 : 0) && player.getFlag().position <= (isPlayerA ? 71 : 8)
     );
 };
 

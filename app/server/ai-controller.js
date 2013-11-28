@@ -1,6 +1,8 @@
+// our socket-io client simulator
 var io = require('socket.io-client');
+
 // the names of our AIs will be randomly picked from this list
-var aiNames = [
+var AI_PLAYER_NAMES = [
     'Jay-jay', 'Myka', 'Jojo', 'Marjun', 'Joy', 'Mary Joy', 'Primo', 'JayR',
     'Dodong', 'LG', 'John', 'GM', 'Gorio', 'Boy', 'Carmen', 'Bossing', 'En-en',
     'Ayen', 'Bebe', 'Dondon', 'Dayne'
@@ -11,7 +13,10 @@ var IOEvents, player;
 process.on('message', function(data) {
     var socket = io.connect(data.url);
 
-    player = new AIPlayer(aiNames[Math.floor(Math.random() * aiNames.length)], data.gameId);
+    player = new AIPlayer(
+        AI_PLAYER_NAMES[Math.floor(Math.random() * AI_PLAYER_NAMES.length)],
+        data.gameId
+        );
 
     socket.on('connected', function(data) {
 
@@ -23,7 +28,7 @@ process.on('message', function(data) {
         socket.on(IOEvents.PLAYER_TAKES_TURN, onPlayerTakesTurn);
         socket.on(IOEvents.PLAYER_LEFT, onPlayerLeft);
 
-        // let our AI join the game
+        // let our AI PLAYER join the game
         socket.emit(IOEvents.PLAYER_JOIN, {
             playerName: player.name,
             gameId: player.gameId
@@ -31,7 +36,7 @@ process.on('message', function(data) {
     });
 
     socket.on('disconnected', function() {
-        console.log('AI player "%s" left the game "%s".', player.name, player.gameId);
+        process.exit(0);
     });
 
 });
@@ -80,21 +85,26 @@ AIPlayer.prototype = {
             positions.push(start);
             start++;
         }
-        // Knuth Shuffle our positions
+
+        // then, Knuth Shuffle these positions
         var i = positions.length, j, temp;
         while (i--) {
-            j = Math.floor(Math.random() * (i - 1));
+            j = Math.floor(Math.random() * i);
             temp = positions[i];
             positions[i] = positions[j];
             positions[j] = temp;
         }
-        // now inject the random positions
+
+        // inject the random positions to the game pieces
+        // or effectively place the game pieces in the board
         for (var i = 0, j = this.pieces.length; i < j; i++) {
             this.pieces[i].position = positions[i];
         }
+
         // we simply need our flag at the last row randomly
         var position = Math.floor(Math.random() * (71 - 63 + 1)) + 63;
         var piece = this.getPiece(position);
+        // swap with the existing game piece if there is
         if (piece) {
             piece.position = flag.position;
         }
@@ -121,6 +131,10 @@ AIPlayer.prototype = {
 
     /**
      * Computes the next possible move of the given game piece
+     * NOTE: Our AI is pretty dumb for now, we can upgrade this
+     * since this is done on a separate process so intensive
+     * computation will be tolerated. Question is can I make
+     * one good algorithm for this? LOL!
      * @param  {Object}  piece The game piece to move
      * @return {Integer}       The new position
      */
@@ -150,9 +164,16 @@ AIPlayer.prototype = {
             nextPositions.push(nextPosition);
         }
 
+        // we have 0 to 4 available positions
+        // so let's randomly pick from them (yeah, dumb)
         return nextPositions[Math.floor(Math.random() * nextPositions.length)];
     },
 
+    /**
+     * Check if position is within range
+     * @param  {Number}  position The position to check
+     * @return {Boolean}          true for a valid position
+     */
     isValidPosition: function(position) {
         return position > -1 && position < 72;
     },
@@ -183,7 +204,7 @@ function onPlayerJoined(data) {
     // we are always the one joining an existing game
     player.id = data.playerId;
     player.generatePieces();
-    // then submit immediately after some time
+    // then submit immediately after "some" time
     // so the human player can view the message
     var socket = this;
     setTimeout(function() {
@@ -201,18 +222,19 @@ function onPlayerJoined(data) {
  * Data:    success, playerId
  */
 function onPlayerTakesTurn(data) {
+    // we don't have to do anything here if it's game over
     if (data.isGameOver) {
         return;
     }
 
-    // get the next turn
+    // let's make the AI move a game piece
     if (data.playerId == player.id) {
 
         // let's see if the human player challenged and defeated/drawed us
         if (data.result.isChallenge) {
             var piece = player.getPiece(data.result.newPosition);
             if (data.result.isChallenge && data.result.challengeResult != -1) {
-                // okay we are defeated or drawed
+                // okay we are defeated or drawed so remove the piece from our board
                 piece.position = -1;
             }
         }
@@ -225,7 +247,7 @@ function onPlayerTakesTurn(data) {
         });
 
         var socket = this;
-        // emit after some time so the human player can see our selection and move
+        // emit after "some" time so the human player can see our selection and before we move the game piece
         setTimeout(function() {
             socket.emit(IOEvents.PLAYER_TAKES_TURN, {
                 gameId: player.gameId,
@@ -236,6 +258,8 @@ function onPlayerTakesTurn(data) {
         }, 1000);
 
     } else {
+        // let's respond to our move from the above code
+        // and update our game piece's position
         var piece = player.getPiece(data.result.oldPosition);
         if (data.result.isChallenge && data.result.challengeResult != 1) {
             piece.position = -1;
@@ -247,8 +271,7 @@ function onPlayerTakesTurn(data) {
 
 /**
  * Source:  Socket.IO
- * Handles: A player has left the game by closing his browser
- *          or navigating to another address
+ * Handles: The human player left the game so let's destroy this process
  */
 function onPlayerLeft(data) {
     this.disconnect();

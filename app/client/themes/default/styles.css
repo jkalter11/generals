@@ -1,13 +1,14 @@
 /* default element styles */
 
 body {
-    font-family: Tahoma, 'Lucida Grande', sans-serif;
+    font-family: Verdana, Tahoma, 'Lucida Grande', Arial, sans-serif;
     background-color: #1c1828;
     color: #fff;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    text-transform: uppercase;
 }
 
 .button {
@@ -62,7 +63,7 @@ a {
 
 a:hover {
     color: #fff;
-    border-bottom: 1px solid #fff;
+    text-decoration: underline;
 }
 
 hr {
@@ -97,6 +98,7 @@ hr {
     margin-top: 50px;
     padding-top: 10px;
     font-size: 13px;
+    font-family: Arial, sans-serif;
     color: #999;
     border-top: 1px solid #aaa;
 }
@@ -113,10 +115,6 @@ hr {
     text-align: center;
     background: url('beta.png') no-repeat top left;
     background-size: 90px;
-}
-
-.container > .header > a:hover {
-    border: none;
 }
 
 .container > .header > a small {
@@ -158,7 +156,6 @@ hr {
 
 .game-menu p {
     font-size: 12px;
-    line-height: 20px;
     margin: 0 5px 0 15px;
 }
 
@@ -197,8 +194,6 @@ hr {
 .game-info p {
     font-size: 15px;
     margin-left: 30px;
-    line-height: 25px;
-    letter-spacing: 1px;
 }
 
 /* footer styles */
@@ -325,11 +320,19 @@ hr {
 
 #game-board tr:nth-child(1),
 #game-board tr:nth-child(2),
-#game-board tr:nth-child(3),
+#game-board tr:nth-child(3) {
+    background-color: rgba(150,0,0,0.20);
+}
+
+#game-board tr:nth-child(4),
+#game-board tr:nth-child(5) {
+    background-color: rgba(255,255,0,0.15);
+}
+
 #game-board tr:nth-child(6),
 #game-board tr:nth-child(7),
 #game-board tr:nth-child(8) {
-    background-color: rgba(0,125,0,0.13);
+    background-color: rgba(50,100,255,0.20);
 }
 
 #game-board td {
@@ -355,19 +358,12 @@ hr {
 
 #game-board td.challengeable .game-piece {
     border-style: dashed;
+    border-color: #fff;
 }
 
 #game-board td.target,
 #game-board td.target:hover {
     background-color: #00eeff;
-}
-
-.board-instructions {
-    margin-top: 50px;
-    border-top: 1px dashed #fff;
-    border-bottom: 1px dashed #fff;
-    width: 675px;
-    font: bold 12px Consolas,Monaco,monospace;
 }
 
 /* game piece styles */
@@ -411,7 +407,7 @@ hr {
 
 .game-piece.opponent.selected {
     border-style: dashed;
-    border-color: #60B044;
+    border-color: #fff;
 }
 
 /* the game pieces' insignias */
@@ -522,6 +518,7 @@ hr {
 }
 
 .social {
+    margin-top: 20px;
     border-top: 1px solid #edd;
     padding-top: 20px;
 }

@@ -97,7 +97,6 @@
         <div id="fallen-pieces"></div>
         <table id="game-board"></table>
         <table id="game-board-numbers"></table>
-        <div class="board-instructions"></div>
     </div>
 </script>
 <script src="/socket.io/socket.io.js"></script>
@@ -118,7 +117,9 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
   })();
 </script>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-<!--SCRIPTS--><script src="/srcs/generals.js"></script><!--SCRIPTS END-->
+<script>
+!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+</script>
+<!--SCRIPTS--><script src="/srcs/i18n.js"></script><script src="/srcs/redcat-msgbox.js"></script><script src="/srcs/core.js"></script><script src="/srcs/views.common.js"></script><script src="/srcs/views.main.js"></script><script src="/srcs/views.welcome.js"></script><script src="/srcs/views.game.js"></script><script src="/srcs/controller.js"></script><!--SCRIPTS END-->
 </body>
 </html>

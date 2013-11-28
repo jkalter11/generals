@@ -4,7 +4,13 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         jshint: {
-            files: [ 'app/client/srcs/*.js' ]
+            options: {
+                shadow: true
+            },
+            files: [
+                'app/client/srcs/*.js',
+                'app/server/*.js'
+                ]
         },
 
         clean: [ 'app/public/*' ],
@@ -20,6 +26,7 @@ module.exports = function(grunt) {
             prod: {
                 files: [
                     { expand: true, cwd: 'app/client/', src: ['*'], dest: 'app/public/', filter: 'isFile' },
+                    { expand: true, cwd: 'app/client/help/', src: ['**'], dest: 'app/public/help/', filter: 'isFile' },
                     { expand: true, cwd: 'app/client/themes/', src: ['**'], dest: 'app/public/themes/', filter: 'isFile' }
                 ]
             }

@@ -3,19 +3,12 @@
  * @param  {Object} app        The express framework application
  * @param  {Object} controller The game controller which handles our games
  */
-exports.handle = function(app, controller, config) {
-
-    app.get('/purge-db', function(request, response) {
-        response.send({
-            gameCount: controller.purgeGameDb()
-        });
-    });
+exports.handle = function(app, controller) {
 
     app.get('/stats', function(request, response) {
         response.send({
-            gameCount: controller.gameDb.count.toLocaleString(),
-            siteVisits: siteVisitCounter.toLocaleString()
+            gameCount: controller.gameDb.count.toLocaleString()
         });
     });
 
-}
+};
