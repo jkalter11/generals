@@ -1,29 +1,34 @@
 // our socket-io client simulator
 var io = require('socket.io-client');
 
-// the names of our AIs will be randomly picked from this list
+// the names of our AI Players will be randomly picked from this list
 var AI_PLAYER_NAMES = [
-    'Jay-jay', 'Myka', 'Jojo', 'Marjun', 'Joy', 'Mary Joy', 'Primo', 'JayR',
+    'JayJay', 'Myka', 'Jojo', 'Marjun', 'Joy', 'Mary Joy', 'Primo', 'JayR',
     'Dodong', 'LG', 'John', 'GM', 'Gorio', 'Boy', 'Carmen', 'Bossing', 'En-en',
     'Ayen', 'Bebe', 'Dondon', 'Dayne'
     ];
 
 var IOEvents, player;
 
+/**
+ * Handles process messages from the controller process
+ * @param  {Object} data A hashset of
+ *                       url    (for socket connection) and the
+ *                       gameId of the game to join to
+ */
 process.on('message', function(data) {
+    // connect our client socket
     var socket = io.connect(data.url);
-
-    player = new AIPlayer(
-        AI_PLAYER_NAMES[Math.floor(Math.random() * AI_PLAYER_NAMES.length)],
-        data.gameId
-        );
-
+    // pick a name for our AI
+    var aiName = AI_PLAYER_NAMES[Math.floor(Math.random() * AI_PLAYER_NAMES.length)];
+    // create our AI player object
+    player = new AIPlayer(aiName, data.gameId);
+    // once connected, let's attach our SocketIO event handlers
     socket.on('connected', function(data) {
-
-        IOEvents = data;
 
         console.log('AI player "%s" connected to game "%s".', player.name, player.gameId);
 
+        IOEvents = data;
         socket.on(IOEvents.PLAYER_JOINED, onPlayerJoined);
         socket.on(IOEvents.PLAYER_TAKES_TURN, onPlayerTakesTurn);
         socket.on(IOEvents.PLAYER_LEFT, onPlayerLeft);
@@ -34,8 +39,9 @@ process.on('message', function(data) {
             gameId: player.gameId
         });
     });
-
+    // we exit the process once the socket is disconnected
     socket.on('disconnected', function() {
+        console.log('AI player "%s" disconnected from the game "%s".', player.name, player.gameId);
         process.exit(0);
     });
 
@@ -275,5 +281,4 @@ function onPlayerTakesTurn(data) {
  */
 function onPlayerLeft(data) {
     this.disconnect();
-    process.exit(0);
 }

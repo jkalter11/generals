@@ -139,11 +139,14 @@ function onViewSubmitPieces(data) {
 /**
  * Source:  Socket.IO
  * Handles: When the pieces have been submitted to the server
- * Data:    success, playerId, positions(Array of Ints), isStarted
+ * Data:    success, playerId, gamePieces(position and hash codes only), isStarted
  */
 function onPiecesSubmitted(data) {
+    console.log(IOEvents.PIECES_SUBMITTED);
+    console.log(data);
+
     if (data.success) {
-        gameView.onGamePiecesSubmitted(data.playerId, data.positions, data.isStarted);
+        gameView.onGamePiecesSubmitted(data.playerId, data.gamePieces, data.isStarted);
         // if the game has started, wait for the first player's move
         if (data.isStarted) {
             if (game.isCreated) {
@@ -181,6 +184,8 @@ function onOpponentGamePieceSelected(data) {
  * Data:    success, playerId, result
  */
 function onPlayerTakesTurn(data) {
+    console.log(IOEvents.PLAYER_TAKES_TURN);
+    console.log(data);
     if (data.success) {
         // let's inform the view that the move is valid
         gameView.onGamePieceMovedOrChallenged(data.result, function() {

@@ -255,11 +255,13 @@ TGO.Views.gameView = (function() {
         element.addClass('game-piece');
         // okay, we assume this is an opponent's game piece
         // since we are not given the code/rank
-        if (!piece.code) {
-            element.addClass('opponent');
-        } else {
+        if (piece.code) {
             element.addClass('game-piece-' + piece.code);
             element.html('<span class="code">' + piece.code + '</span>');
+        } else {
+            element.addClass('opponent');
+            // add the hashcode for this code
+            element.data('hash', piece.hash);
         }
         // set our initial position so it can be added in the game board UI
         element.data('init-pos', piece.position);
@@ -282,10 +284,10 @@ TGO.Views.gameView = (function() {
     /**
      * This function is called once we have submitted the game pieces successfully
      * @param  {String} playerId  The player who submitted the game pieces
-     * @param  {Array}  positions An array of integer positions of the submitted pieces
-     *                            The codes/ranks are not given of course
+     * @param  {Array}  pieces    An array of integer positions and hashcodes of the submitted pieces
+     *                            The codes/ranks are not given explicitely of course
      */
-    function onGamePiecesSubmitted(playerId, positions, isStarted) {
+    function onGamePiecesSubmitted(playerId, pieces, isStarted) {
         // if we are the player who submits it
         if (game.playerId == playerId) {
             setGameMessage('Game pieces submitted. Waiting for <span class="highlight">%s</span> to submit game pieces.', game.opponentName);
@@ -296,12 +298,10 @@ TGO.Views.gameView = (function() {
                 readyButton.show();
             }
 
-            // if not then we need to get those game piece positions in our board
+            // if not then we need to get those game piece gamePieces in our board
             var gamePieces = [];
-            for (var i = 0; i < positions.length; i++) {
-                gamePieces.push(createGamePiece({
-                    position: positions[i]
-                }));
+            for (var i = 0; i < pieces.length; i++) {
+                gamePieces.push(createGamePiece(pieces[i]));
             }
             addGamePiecesToBoard(gamePieces);
         }

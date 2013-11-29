@@ -2,7 +2,7 @@ var assert = require('assert');
 
 describe('Game', function() {
 
-    var gameModule = require('../app/game.js'),
+    var gameModule = require('../app/server/game.js'),
         gameDb = new gameModule.GameDb(),
         game = new gameModule.Game();
 
@@ -120,12 +120,6 @@ describe('Game', function() {
     describe('pieces', function() {
         it('should return GOA for GOA piece', function() {
             assert(new gameModule.Piece('GOA').code == 'GOA');
-        });
-        it('should return 0 for flag piece value', function() {
-            assert(new gameModule.Piece('FLG').value == 0);
-        });
-        it('should return true if 2star general > captain', function() {
-            assert(new gameModule.Piece('MAG').value > new gameModule.Piece('CPT').value);
         });
     });
 

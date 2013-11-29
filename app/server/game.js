@@ -1,7 +1,7 @@
-/**
- * Use string utility functions
- */
+// Use string utility functions
 var util = require('util');
+// Encryption
+var Hashids = require('hashids');
 
 /**
  * @class GameDb
@@ -89,6 +89,9 @@ function Game() {
     // after that 50 moves, each player's pieces will be computed and the larger's
     // value will be declared the winner (or draw if both are equal)
     this.noChallengeCount = 0;
+
+    // let's create a hash for all game pieces for this game session
+    Piece.resetItemHashes(Game.uuid());
 }
 
 Game.prototype.createPlayer = function(playerName, isPlayerA) {
@@ -423,30 +426,39 @@ Player.prototype.getPiece = function(position) {
  * @param       {string} code the 3 digit code of the piece
  */
 function Piece(code) {
-    switch(code) {
-        case 'GOA': this.rank = 14; this.value = 7.80; break;
-        case 'SPY': this.rank = 13; this.value = 7.50; break;
-        case 'GEN': this.rank = 12; this.value = 6.95; break;
-        case 'LTG': this.rank = 11; this.value = 6.15; break;
-        case 'MAG': this.rank = 10; this.value = 5.40; break;
-        case 'BRG': this.rank =  9; this.value = 4.70; break;
-        case 'COL': this.rank =  8; this.value = 4.05; break;
-        case 'LTC': this.rank =  7; this.value = 3.45; break;
-        case 'MAJ': this.rank =  6; this.value = 2.90; break;
-        case 'CPT': this.rank =  5; this.value = 2.40; break;
-        case '1LT': this.rank =  4; this.value = 1.95; break;
-        case '2LT': this.rank =  3; this.value = 1.55; break;
-        case 'SGT': this.rank =  2; this.value = 1.20; break;
-        case 'PVT': this.rank =  1; this.value = 1.37; break;
-        case 'FLG': this.rank =  0; this.value = 0.00; break;
-        default: throw new Error('Game piece code is invalid: ' + code);
-    }
     this.code = code;
     this.position = -1;
+    this.rank = Piece.ITEMS[code].RANK;
+    this.value = Piece.ITEMS[code].VALUE;
 }
 
 Piece.prototype.isFlag = function() {
     return this.code == 'FLG';
+};
+
+Piece.ITEMS = {
+    'GOA': { RANK: 14, VALUE: 7.80, HASH: '' },
+    'SPY': { RANK: 13, VALUE: 7.50, HASH: '' },
+    'GEN': { RANK: 12, VALUE: 6.95, HASH: '' },
+    'LTG': { RANK: 11, VALUE: 6.15, HASH: '' },
+    'MAG': { RANK: 10, VALUE: 5.40, HASH: '' },
+    'BRG': { RANK:  9, VALUE: 4.70, HASH: '' },
+    'COL': { RANK:  8, VALUE: 4.05, HASH: '' },
+    'LTC': { RANK:  7, VALUE: 3.45, HASH: '' },
+    'MAJ': { RANK:  6, VALUE: 2.90, HASH: '' },
+    'CPT': { RANK:  5, VALUE: 2.40, HASH: '' },
+    '1LT': { RANK:  4, VALUE: 1.95, HASH: '' },
+    '2LT': { RANK:  3, VALUE: 1.55, HASH: '' },
+    'SGT': { RANK:  2, VALUE: 1.20, HASH: '' },
+    'PVT': { RANK:  1, VALUE: 1.37, HASH: '' },
+    'FLG': { RANK:  0, VALUE: 0.00, HASH: '' }
+};
+
+Piece.resetItemHashes = function(passphrase) {
+    var hashids = new Hashids(passphrase);
+    for (var code in Piece.ITEMS) {
+        Piece.ITEMS[code].HASH = hashids.encrypt(Piece.ITEMS[code].RANK);
+    }
 };
 
 /**
@@ -520,9 +532,15 @@ Board.prototype.placePieces = function(pieces, isPlayerA) {
 Board.prototype.movePiece = function(player, piece, newPosition, challengeCallback) {
 
     var result = {
+        // whether the move/challenge is successful
         success: false,
+        // whether the current move initiates a challenge
         isChallenge: false,
-        challengeResult: 0
+        // and if it is a challenge, what's the result (see above)
+        challengeResult: 0,
+        // and the pieces' codes involved (for testing or other purposes)
+        challenger: '',
+        challenged: ''
     };
 
     // check if the piece is actuall moving
@@ -548,6 +566,8 @@ Board.prototype.movePiece = function(player, piece, newPosition, challengeCallba
     if (newPositionPiece) {
         result.isChallenge = true;
         result.challengeResult = challengeCallback(piece, newPositionPiece);
+        result.challenger = Piece.ITEMS[piece.code].HASH;
+        result.challenged = Piece.ITEMS[newPositionPiece.code].HASH;
 
         if (result.challengeResult === 1) {
             // since this is a challenge and you beat the newPositionPiece

@@ -7,6 +7,7 @@ Backend
 - `socket.io` handles client-server game flow
 - `expressjs` for the backend application framework
 - `mocha` for unit testing (installed globally so it can be run from the terminal)
+- `grunt` for automation
 
 Frontend
 - `jQuery` for DOM manipulation, animation and AJAX

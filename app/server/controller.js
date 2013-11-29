@@ -2,7 +2,7 @@
 var gm = require('./game.js');
 
 // Import our AI child process worker
-var proc = require('child_process');
+var childProc = require('child_process');
 
 // let's instantiate our game in-memory database
 // Our game does not really track a game after it's over
@@ -49,8 +49,8 @@ module.exports = {
 
     init: function(_io) {
         io = _io;
-        // let's purge the database every xxx hours
-        purgeGameDb(0.017);
+        // let's purge the database every 0.2 hours (12 minutes)
+        purgeGameDb(0.2);
     },
 
     /**
@@ -139,7 +139,7 @@ function onPlayAI(data) {
     // separate thread
     // Also, the URL component is required since I have no idea
     // how to get it from the server side
-    proc.fork('app/server/ai-controller.js')
+    childProc.fork('app/server/ai-controller.js')
         .on('exit', function() { console.log('AI player process has exited.'); })
         .send(data);
 }
@@ -194,10 +194,14 @@ function onSubmitPieces(data) {
         game.setPlayerPieces(data.playerId, data.gamePieces);
 
         // now, these game pieces needs to be broadcasted to the other
-        // clients but we don't want to expose the ranks (no cheating), just the positions
-        var positions = [];
+        // clients but we don't want to expose the ranks (no cheating),
+        // just the positions and hash codes
+        var gamePieces = [];
         for (var i = 0; i < data.gamePieces.length; i++) {
-            positions.push(data.gamePieces[i].position);
+            gamePieces.push({
+                position: data.gamePieces[i].position,
+                hash: gm.Piece.ITEMS[data.gamePieces[i].code].HASH
+            });
         }
 
         // we emit the IOEvents.PIECES_SUBMITTED just for notification purposes
@@ -205,7 +209,7 @@ function onSubmitPieces(data) {
         io.sockets.in(game.id).emit(IOEvents.PIECES_SUBMITTED, {
             success: true,
             playerId: data.playerId,
-            positions: positions,
+            gamePieces: gamePieces,
             // now we need to tell the client also that both
             // players have submitted their game pieces and
             // we can start the game starting with player A
@@ -248,6 +252,8 @@ function onPlayerTakesTurn(data) {
         // let's augment the result object with the passed positions for the opponent
         result.oldPosition = data.oldPosition;
         result.newPosition = data.newPosition;
+
+        result.challenger = game.encryptor.encrypt(result.challenger);
 
         // now, notify the clients
         if (result.success) {
