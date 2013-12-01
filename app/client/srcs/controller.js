@@ -9,15 +9,16 @@ var socket = io.connect(window.location.href);
 // be communicated on Socket.IO, we take this from the
 // server so that we don't have to duplicate the names
 // at client side (see the "connected" IO event)
-var IOEvents;
+var IOEvents,
+    ViewEvents = tgo.views.Events;
 
 // our local reference for the objects to prevent too much typing
 // as well as useful in minification
-var game = TGO.Models.game,
-    mainView = TGO.Views.mainView,
-    welcomeView = TGO.Views.welcomeView,
-    gameView = TGO.Views.gameView,
-    msgbox = TGO.Views.msgbox;
+var game = tgo.models.game,
+    welcomeView = tgo.views.welcomeView,
+    gameView = tgo.views.gameView,
+    chatView = tgo.views.chatView,
+    msgbox = tgo.views.msgbox;
 
 // when we connected, we want to watch for some events
 // which are defined in the server (IOEvents)
@@ -32,19 +33,23 @@ socket.on('connected', function(data) {
     socket.on(IOEvents.PIECE_SELECTED, onOpponentGamePieceSelected);
     socket.on(IOEvents.PLAYER_TAKES_TURN, onPlayerTakesTurn);
     socket.on(IOEvents.PLAYER_LEFT, onPlayerLeft);
+    socket.on(IOEvents.CHAT_MESSAGE, onRecieveChatMessage);
+
 });
 
 // handle view events
-welcomeView.on(TGO.Views.Events.CREATE_GAME, onViewCreateGame);
-welcomeView.on(TGO.Views.Events.JOIN_GAME, onViewJoinGame);
+welcomeView.on(ViewEvents.CREATE_GAME, onViewCreateGame);
+welcomeView.on(ViewEvents.JOIN_GAME, onViewJoinGame);
 
-gameView.on(TGO.Views.Events.PLAY_AI, onViewPlayAI);
-gameView.on(TGO.Views.Events.SUBMIT_PIECES, onViewSubmitPieces);
-gameView.on(TGO.Views.Events.GAME_PIECE_SELECTED, onViewGamePieceSelected);
-gameView.on(TGO.Views.Events.TAKE_TURN, onViewMovesGamePiece);
+gameView.on(ViewEvents.PLAY_AI, onViewPlayAI);
+gameView.on(ViewEvents.SUBMIT_PIECES, onViewSubmitPieces);
+gameView.on(ViewEvents.GAME_PIECE_SELECTED, onViewGamePieceSelected);
+gameView.on(ViewEvents.TAKE_TURN, onViewMovesGamePiece);
+
+chatView.on(ViewEvents.CHAT_MESSAGE, onSendChatMessage);
 
 // Now, let's start and see the welcome view
-mainView.showWelcomeView();
+welcomeView.show();
 
 /**
  * Source:  View
@@ -64,9 +69,7 @@ function onGameCreated(data) {
     if (data.success) {
         game.init(data.gameId, data.playerId, sanitizeHtml(data.playerName));
         game.isCreated = true;
-        mainView.showGameView(function() {
-            gameView.onGameCreated(game);
-        });
+        gameView.show();
     } else {
         msgbox.show(data.error);
     }
@@ -105,21 +108,21 @@ function onPlayerJoined(data) {
         if (game.isCreated) {
             // we are the one creating the game so the player who joins is our opponent
             game.opponentName = sanitizeHtml(data.playerName);
-            gameView.onPlayerJoined(true);
+            gameView.playerJoined(true);
             game.generatePieces();
-            gameView.onGamePiecesCreated();
+            gameView.createGamePieces();
         } else {
             // we are joining this existing game
-            game.init(data.gameId, data.playerId, data.playerName);
+            game.init(data.gameId, data.playerId, sanitizeHtml(data.playerName));
             game.opponentName = sanitizeHtml(data.opponentName);
             // we did not create this game, we joined this game
             game.isCreated = false;
             // update the view
-            mainView.showGameView(function() {
-                gameView.onPlayerJoined(false);
+            gameView.show(function() {
+                gameView.playerJoined(false);
                 // let's prepare our game pieces
                 game.generatePieces();
-                gameView.onGamePiecesCreated();
+                gameView.createGamePieces();
             });
         }
     } else {
@@ -142,13 +145,12 @@ function onViewSubmitPieces(data) {
  * Data:    success, playerId, gamePieces(position and hash codes only), isStarted
  */
 function onPiecesSubmitted(data) {
-    console.log(IOEvents.PIECES_SUBMITTED);
-    console.log(data);
-
     if (data.success) {
-        gameView.onGamePiecesSubmitted(data.playerId, data.gamePieces, data.isStarted);
+        game.hasStarted = data.isStarted;
+        gameView.gamePiecesSubmitted(data.playerId, data.gamePieces, data.isStarted);
         // if the game has started, wait for the first player's move
         if (data.isStarted) {
+            chatView.init();
             if (game.isCreated) {
                 gameView.waitPlayersTurn();
             } else {
@@ -184,23 +186,22 @@ function onOpponentGamePieceSelected(data) {
  * Data:    success, playerId, result
  */
 function onPlayerTakesTurn(data) {
-    console.log(IOEvents.PLAYER_TAKES_TURN);
-    console.log(data);
     if (data.success) {
         // let's inform the view that the move is valid
-        gameView.onGamePieceMovedOrChallenged(data.result, function() {
-            if (data.isGameOver) {
-                // the current player is the winner
-                gameView.showGameOver(data);
-            } else {
-                // get the next turn
-                if (data.playerId == game.playerId) {
-                    gameView.waitPlayersTurn();
-                } else {
-                    gameView.waitForOpponentsTurn();
-                }
-            }
-        });
+        gameView.onGamePieceMovedOrChallenged(data.result)
+                .done(function() {
+                    if (data.isGameOver) {
+                        // the current player is the winner
+                        gameView.showGameOver(data);
+                    } else {
+                        // get the next turn
+                        if (data.playerId == game.playerId) {
+                            gameView.waitPlayersTurn();
+                        } else {
+                            gameView.waitForOpponentsTurn();
+                        }
+                    }
+                });
     } else {
         msgbox.show(data.error);
     }
@@ -219,6 +220,27 @@ function onPlayerLeft() {
     msgbox.show('Your opponent has left the game. This game is over.', function() {
         window.location.href = window.location.href;
     });
+}
+
+/**
+ * Source:  View
+ * Handles: When a user chats a message
+ */
+function onSendChatMessage(message) {
+    socket.emit(IOEvents.CHAT_MESSAGE, {
+        gameId: game.id,
+        playerId: game.playerId,
+        message: message
+    });
+}
+
+/**
+ * Handles: IOEvents.CHAT_MESSAGE
+ * Emits:   IOEvents.CHAT_MESSAGE
+ * data:    gameId, playerId, message
+ */
+function onRecieveChatMessage(data) {
+    chatView.addMessage(data.playerId == game.playerId ? game.playerName : game.opponentName, data.message);
 }
 
 /**

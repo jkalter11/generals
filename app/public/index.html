@@ -1,125 +1,162 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>The Generals Online</title>
-<link rel="icon" href="themes/icon.ico">
-<link rel="stylesheet" href="themes/default/redcat-msgbox.css">
+<title>The Game of The Generals Online</title>
+<link rel="icon" href="themes/favicon.ico">
 <link rel="stylesheet" href="themes/default/styles.css">
-<meta http-equiv="content-type" content="text/html;charset=utf-8">
-<meta name="description" content="The Generals Online - The online version of a Filipino-invented board game called The Game of the Generals.">
-<meta name="author" content="Marjun Tacder">
-<meta name="keywords" content="the game of the generals, the generals online">
 </head>
 <body>
-<div id="fb-root"></div>
-<div class="container">
-    <div class="header">
-        <select id="language">
-            <option value="en" selected>English</option>
-        </select>
-        <a href="/">
-            <small>THE GAME OF</small>
-            THE GENERALS
+<div class="header">
+    <div class="container">
+        <a href="/" class="app-name">
+            <span class="prelude">G<small>AME<br>OF THE</small></span>
+            G<small>ENERALS</small>
         </a>
-    </div>
-    <div class="content"></div>
-    <div class="social">
-        <div class="social-media-links">
-            <div class="fb-like" data-href="https://www.facebook.com/pages/The-Generals-Online/464208583699184" data-layout="button" data-action="like" data-show-faces="true" data-share="true" data-width="400"></div>
-            <div class="g-follow" data-annotation="bubble" data-height="20" data-href="//plus.google.com/111767637838040294806" data-rel="publisher"></div>
-            <div class="g-plusone" data-annotation="inline" data-size="medium" data-width="200" data-href="http://generals.herokuapp.com"></div>
-            <div class="g-plus" data-action="share" data-href="http://generals.herokuapp.com" data-width="250"></div>
-            <div><a href="https://twitter.com/share" class="twitter-share-button" data-via="mttacder13" data-hashtags="the-generals-online">Tweet</a></div>
-        </div>
-        <iframe width="480" height="360" src="//www.youtube.com/embed/2Kqx-Ti5PUE" frameborder="0" allowfullscreen></iframe>
-    </div>
-    <div class="footer">
-        <div class="author-links">
-            <a href="http://mttacder13.blogspot.com/2011/12/free-tong-its-for-windows-pc.html">Free Offline Tong-Its!</a> &bull;
-            <a href="http://mttacder13.blogspot.com">More Freebies at My Blog</a> &bull;
-            <a href="http://twitter.com/mttacder13">Twitter</a> &bull;
-            <a href="http://gplus.to/mttacder13">Google+</a> &bull;
-            <a href="http://mttacder13.bitbucket.org">Open Source</a>
-        </div>
-        <div class="copyright">&copy; 2013 Marjun T. Tacder</div>
-        <div class="beta-note">
-            This is still in BETA, a work in progress but playable. If you find any bugs, or want to comment, reactions or even suggestions, just send it through twitter or google plus using the above links. This project is open-source so you can view/fork/whatever the source codes at <a href="https://github.com/mttacder/generals">Github</a>.
-            <hr>
-            This application is dedicated to all people who have played GG at some point in their lives. This is better than the board game since you don't need an adjutant and the pieces won't be blown away by the wind or something.
-            <hr>
-            A special shout-out to <u>JayR Pag-ong</u> who introduced me to this board game back then. And of course, special mentions for the two most important people in my life, my wife, <u>Mary Joy</u> and my daughter <u>Myka</u>.</div>
-        <div class="misc-attributions">
-            <h4>Powered by:</h4>
-            <div><a href="http://nodejs.org/"><img src="themes/node.js.png" alt="Node.js"></a></div>
-            <div><a href="http://socket.io/"><img src="themes/socket.io.png" alt="Socket.IO"></a></div>
-            <div><a href="http://expressjs.com/"><img src="themes/express.png" alt="Expressjs"></a></div>
-            <div><a href="http://jquery.com/"><img src="themes/jQuery.png" alt="jQuery"></a></div>
-        </div>
-        <div class="misc-attributions">
-            <h4>This application is best viewed using the latest web browsers. Older browsers especially (IEhem!) are not tested. NO MOBILE SUPPORT YET.</h4>
-            <div><img src="themes/safari.png" alt="Safari"></div>
-            <div><img src="themes/firefox.png" alt="Firefox"></div>
-            <div><img src="themes/chrome.png" alt="Chrome"></div>
-            <div><img src="themes/opera.png" alt="Opera"></div>
-            <div><img src="themes/ie.png" alt="IE Latest"></div>
+        <div class="social-links">
+            <a href="#" class="blogger" title="View more freebies at my blog"></a>
+            <a href="#" class="facebook" title="Like us at facebook"></a>
+            <a href="#" class="google-plus" title="Show us some love at Google Plus"></a>
+            <a href="#" class="twitter" title="Tweet us"></a>
+            <a href="#" class="youtube" title="View our tutorial"></a>
+            <a href="#" class="github" title="Fork/Watch/Whatever the source codes at Github"></a>
         </div>
     </div>
 </div>
-<script id="welcome-template" type="text/template">
-    <div class="game-menu">
-        <h3 id="player-name-header"></h3>
-        <input id="player-name-input" type="text">
-        <h3 class="create-new-game-header"></h3>
-        <p class="create-new-game-description"></p>
-        <button id="create-game" class="button"></button>
-        <h3 class="join-game-header"></h3>
-        <p class="join-game-description"></p>
-        <input id="game-id-input" type="text">
-        <button id="join-game" class="button"></button>
+<div class="content">
+    <div class="container"></div>
+</div>
+<div class="footer">
+    <div class="container">
+        <div class="block">
+            <h3>About the Author</h3>
+            <img src="themes/default/author.jpg" alt="Marjun T. Tacder" title="Marjun T. Tacder">
+            <p>I am a software engineer, currently working for a US-based, start-up company. I have been working on desktop, web and mobile software development for the last 5 years as of this writing.</p>
+            <p>I consider coding as a day job and a past time. I like to play video games, the guitar (I'm a former band member) among others. I like to build products that I can personally use and enjoy then share them freely online like Tong-Its, Lyricist, this game, among others.</p>
+            <p>Oh, and I have Mitral Valve Prolapse with the ever common anxiety issues which most people don't understand. I don't think people should hide if they have this condition and pretend that they don't have it.</p>
+        </div>
+        <div class="block">
+            <h3>About Game of the Generals</h3>
+            <img src="themes/default/gg-cover.jpg" alt="Game of the Generals" title="Box cover of the 1981 version">
+            <p>This is a proudly Filipino-invented game by <a href="http://en.wikipedia.org/wiki/Special:Search/Sofronio_H._Pasola,_Jr."> Sofronio H. Pasola, Jr.</a> in 1970.</p>
+            <p>The game simulates armies at war trying to outflank and outmaneuver each other. The main objective of the game is to eliminate or capture the opponent's FLAG piece or alternatively, bring your own FLAG piece to the opponent's end of the board. This is easy to play.</p>
+            <p>All you have to do is remember who's rank is greater than who (eg: a 5 star general (GOA) is greater than a 3 star (LTG) or 4 star general (GEN) but all these generals and ranked pieces are no match to the spy (SPY) yet the spy (SPY) is no match to the unranked private (PVT)).</p>
+            <p>Intrigued? For more information, here's a <a href="http://en.wikipedia.org/wiki/Game_of_the_Generals">detailed Wikipedia page</a> for this game.</p>
+        </div>
+        <div class="clearfix"></div>
+        <div class="attributions">
+            <h3>Powered by:</h3>
+            <div>
+                <a href="http://nodejs.org/"><img src="themes/default/third-party/node.js.png" alt="Node.js"></a>
+                <a href="http://socket.io/"><img src="themes/default/third-party/socketio.png" alt="Socket.IO"></a>
+                <a href="http://expressjs.com/"><img src="themes/default/third-party/express.png" alt="Expressjs"></a>
+                <a href="http://jquery.com/"><img src="themes/default/third-party/jQuery.png" alt="jQuery"></a>
+            </div>
+        </div>
+        <div class="attributions">
+            <h3>Best viewed with the latest browsers:</h3>
+            <div>
+                <img src="themes/default/browsers/safari.png" alt="Safari">
+                <img src="themes/default/browsers/firefox.png" alt="Firefox">
+                <img src="themes/default/browsers/chrome.png" alt="Chrome">
+                <img src="themes/default/browsers/opera.png" alt="Opera">
+                <img src="themes/default/browsers/ie.png" alt="IE Latest">
+            </div>
+            <p>Warning: IE 8 and below are not tested. Please do yourself a favor and upgrade to the latest IE browser. Or use Google Chrome or Mozilla Firefox.</p>
+        </div>
     </div>
-    <div class="game-info">
-        <h2 class="game-info-main-header"></h2>
-        <h4 class="game-info-about-header"></h4>
-        <p class="game-info-about-description"></p>
-        <h4 class="game-info-about-online-header"></h4>
-        <p class="game-info-about-online-description"></p>
+    <p class="copyright">&copy; 2013 Marjun T. Tacder</p>
+</div>
+<div class="javascript-notice-container">
+    <div class="javascript-notice">
+        Sorry,
+        <span class="app-name">GAME OF THE GENERALS</span>
+        requires Javascript-capable or Javascript-enabled web browsers.
+    </div>
+</div>
+<script id="welcome-template" type="text/template">
+    <div class="welcome-header">
+        <h1 class="app-name nowrap">T<small>HE</small> G<small>AME OF THE</small> G<small>ENERALS</small> O<small>NLINE</small></h1>
+        <p class="app-description">This is the online version of a proudly <span class="nowrap">Filipino-invented</span> board game <a href="http://en.wikipedia.org/wiki/Game_of_the_Generals" class="nowrap">"The Game of the Generals"</a> in 1970 by <a href="http://en.wikipedia.org/wiki/Special:Search/Sofronio_H._Pasola,_Jr." class="nowrap">Sofronio H. Pasola, Jr.</a></p>
+    </div>
+    <div class="game-menu">
+        <p class="instructions">Your name/alias: <input id="player-name-input" type="text"></p>
+        <div>
+            <div class="block">
+                <h4>CREATE A NEW GAME</h4>
+                <p>Create a new game session and you can opt to play with an AI to practice or play with another human from any part of the world.</p>
+                <button id="create-game" class="button submit">CREATE</button>
+            </div>
+            <div class="block">
+                <h4>JOIN EXISTING GAME</h4>
+                <p>If your friend (opponent) has already created the game, ask for the <span class="nowrap">GAME ID:<input id="game-id-input" type="text">.</span></p>
+                <button id="join-game" class="button default">JOIN</button>
+            </div>
+        </div>
+    </div>
+    <div class="gg-actual-setup">
+        <a href="themes/default/board-actual.png">
+            <img src="themes/default/board-actual.png" alt="Game of the Generals">
+        </a>
+        <p>This is an actual board that I also happened to have used way back then I started playing this game but I haven't played this game for while after I left college since not many are familiar with it.</p>
     </div>
 </script>
 <script id="game-template" type="text/template">
-    <div id="game-board-header">
-        <div class="game-message"></div>
-        <button id="new-game" class="button"></button>
-        <button id="view-cheat-sheet" class="button"></button>
-        <button id="ready" class="button"></button>
-        <button id="play-ai" class="button"></button>
+    <div class="game-area">
+        <div id="opponent-fallen-pieces" class="fallen-pieces"></div>
+        <div class="game-board-container">
+            <div id="game-board-overlay"></div>
+            <div class="main-message">
+                <div class="overlay"></div>
+                <div class="message-content"></div>
+            </div>
+            <table id="game-board">
+                <tbody>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="player-opponent-pieces" class="fallen-pieces"></div>
     </div>
-    <div class="game-board-container">
-        <div id="fallen-pieces"></div>
-        <table id="game-board"></table>
-        <table id="game-board-numbers"></table>
+    <div class="sidebar">
+        <div class="sidebar-content">
+            <h4>Game Stats</h4>
+            <table id="game-stats">
+                <tbody>
+                    <tr>
+                        <td>Game ID:</td>
+                        <td class="game-id">---</td>
+                    </tr>
+                    <tr>
+                        <td>Opponent:</td>
+                        <td class="opponent-name">---</td>
+                    </tr>
+                    <tr>
+                        <td>50-Move Rule:</td>
+                        <td>---</td>
+                    </tr>
+                    <tr>
+                        <td>Pieces:</td>
+                        <td>---</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="sidebar-content">
+            <h4>Messages</h4>
+            <ul id="chat-content"></ul>
+            <input id="chat-input" type="text" readonly>
+        </div>
     </div>
 </script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script>
-(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=170294633122194";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
-</script>
-<script type="text/javascript">
-  (function() {
-    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-    po.src = 'https://apis.google.com/js/platform.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-  })();
-</script>
-<script>
-!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
-</script>
-<!--SCRIPTS--><script src="/srcs/i18n.js"></script><script src="/srcs/redcat-msgbox.js"></script><script src="/srcs/core.js"></script><script src="/srcs/views.common.js"></script><script src="/srcs/views.main.js"></script><script src="/srcs/views.welcome.js"></script><script src="/srcs/views.game.js"></script><script src="/srcs/controller.js"></script><!--SCRIPTS END-->
+<!--SCRIPTS--><script src="/srcs/core.js"></script><script src="/srcs/view-main.js"></script><script src="/srcs/view-welcome.js"></script><script src="/srcs/view-game.js"></script><script src="/srcs/view-chat.js"></script><script src="/srcs/controller.js"></script><!--SCRIPTS END-->
 </body>
 </html>

@@ -36,14 +36,12 @@ module.exports = function(grunt) {
             options: { separator: ';' },
             js: {
                 src:  [
-                    'app/client/srcs/i18n.js',
-                    'app/client/srcs/redcat-msgbox.js',
-                    'app/client/srcs/core.js',
-                    'app/client/srcs/views.common.js',
-                    'app/client/srcs/views.main.js',
-                    'app/client/srcs/views.welcome.js',
-                    'app/client/srcs/views.game.js',
-                    'app/client/srcs/controller.js'
+                    'app/public/srcs/core.js',
+                    'app/public/srcs/view-main.js',
+                    'app/public/srcs/view-welcome.js',
+                    'app/public/srcs/view-game.js',
+                    'app/public/srcs/view-chat.js',
+                    'app/public/srcs/controller.js'
                 ],
                 dest: 'app/public/srcs/generals.js'
             }
@@ -72,13 +70,11 @@ module.exports = function(grunt) {
                 },
                 files: {
                     'app/public/index.html': [
-                        'app/public/srcs/i18n.js',
-                        'app/public/srcs/redcat-msgbox.js',
                         'app/public/srcs/core.js',
-                        'app/public/srcs/views.common.js',
-                        'app/public/srcs/views.main.js',
-                        'app/public/srcs/views.welcome.js',
-                        'app/public/srcs/views.game.js',
+                        'app/public/srcs/view-main.js',
+                        'app/public/srcs/view-welcome.js',
+                        'app/public/srcs/view-game.js',
+                        'app/public/srcs/view-chat.js',
                         'app/public/srcs/controller.js'
                     ]
                 }
@@ -93,7 +89,11 @@ module.exports = function(grunt) {
 
         watch: {
             dev: {
-                files: [ 'app/client/*.html', 'app/client/srcs/*.js' ],
+                files: [
+                    'app/client/*.html',
+                    'app/client/themes/default/*.css',
+                    'app/client/srcs/*.js'
+                    ],
                 tasks: [ 'clean', 'copy:dev', 'scriptlinker:dev' ],
                 options: {
                     spawn: false

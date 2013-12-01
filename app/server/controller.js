@@ -38,7 +38,9 @@ var IOEvents = {
     // from client
     DISCONNECT: 'disconnect',
     // from server
-    PLAYER_LEFT: 'player-left'
+    PLAYER_LEFT: 'player-left',
+    // from client
+    CHAT_MESSAGE: 'chat-message'
 };
 
 /**************************************************************
@@ -69,6 +71,7 @@ module.exports = {
         socket.on(IOEvents.PIECE_SELECTED, onPieceSelected);
         socket.on(IOEvents.PLAYER_TAKES_TURN, onPlayerTakesTurn);
         socket.on(IOEvents.DISCONNECT, onDisconnect);
+        socket.on(IOEvents.CHAT_MESSAGE, onChatMessage);
 
         // we send the event names at client side so it can be re-used
         socket.emit('connected', IOEvents);
@@ -253,8 +256,6 @@ function onPlayerTakesTurn(data) {
         result.oldPosition = data.oldPosition;
         result.newPosition = data.newPosition;
 
-        result.challenger = game.encryptor.encrypt(result.challenger);
-
         // now, notify the clients
         if (result.success) {
             var isGameOver = game.checkGameOver();
@@ -295,6 +296,16 @@ function onDisconnect() {
             io.sockets.in(room.substr(1)).emit('player-left');
         }
     }
+}
+
+/**
+ * simple chat just relaying the messages
+ * Handles: IOEvents.CHAT_MESSAGE
+ * Emits:   IOEvents.CHAT_MESSAGE
+ * data:    gameId, playerId, message
+ */
+function onChatMessage(data) {
+    io.sockets.in(data.gameId).emit(IOEvents.CHAT_MESSAGE, data);
 }
 
 /**************************************************************

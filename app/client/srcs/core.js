@@ -1,15 +1,14 @@
-window.TGO = {
+window.tgo = {
     appName: 'The Generals Online v0.1.0',
-    Models: {},
-    Views: {},
-    debug: false
+    models: {},
+    views: {}
 };
 
 /**
  * Our game object which mostly contains data and utility functions
  * because our game logic stays on the server (all validations are performed their)
  */
-TGO.Models.game = {
+tgo.models.game = {
 
     /**
      * This flag controls whether this client created the game
@@ -29,6 +28,18 @@ TGO.Models.game = {
      * @type {Array}
      */
     pieces: [],
+
+    /**
+     * Are we playing against an AI
+     * @type {Boolean}
+     */
+    isAgainstAI: false,
+
+    /**
+     * Has the game started already? Meaning a piece has already been moved
+     * @type {Boolean}
+     */
+    hasStarted: false,
 
     /**
      * Initializes the game object
@@ -100,13 +111,13 @@ TGO.Models.game = {
 
 /**
  * @class TGO.EventEmitter
- * A class that can manage event publishing and subscribing
+ * A simple implementation of a class that can manage event publishing and subscribing
  */
-TGO.Models.EventEmitter = function() {
+tgo.models.EventEmitter = function() {
     // a hashset of all callback listeners for all events
     this._listeners = {};
 };
-TGO.Models.EventEmitter.prototype = {
+tgo.models.EventEmitter.prototype = {
     /**
      * Attach a callback to an event
      * @param  {String}   eventName Name of the event
