@@ -42,6 +42,13 @@ tgo.models.game = {
     hasStarted: false,
 
     /**
+     * The number of moves where there is no challenge
+     * This value is taken from the server
+     * @type {Number}
+     */
+    noChallengeCount: 0,
+
+    /**
      * Initializes the game object
      * @param  {String} gameId     The id of the newly created game
      * @param  {String} playerId   The id of the client player

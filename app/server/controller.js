@@ -259,11 +259,10 @@ function onPlayerTakesTurn(data) {
         // now, notify the clients
         if (result.success) {
             var isGameOver = game.checkGameOver();
-            var pieces = false;
-            // if it's game over, we will also send the game
-            // pieces so that the player can view the opponent's game pieces
+            var pieceInfos = false;
+            // if it's game over, we will also send the game piece information to show the player's opponent pieces
             if (isGameOver) {
-                pieces = game.playerA.pieces.concat(game.playerB.pieces);
+                pieceInfos = gm.Piece.ITEMS;
             }
             io.sockets.in(game.id).emit(IOEvents.PLAYER_TAKES_TURN, {
                 success: true,
@@ -271,8 +270,8 @@ function onPlayerTakesTurn(data) {
                 playerId: game.currentPlayer ? game.currentPlayer.id : false,
                 result: result,
                 isGameOver: isGameOver,
-                pieces: pieces,
-                is50MoveRule: game.noChallengeCount > 50
+                pieceInfos: pieceInfos,
+                noChallengeCount: game.noChallengeCount
             });
         } else {
             this.emit(IOEvents.PLAYER_TAKES_TURN, {

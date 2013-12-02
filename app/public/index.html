@@ -103,6 +103,7 @@
 <script id="game-template" type="text/template">
     <div class="game-area">
         <div id="opponent-fallen-pieces" class="fallen-pieces"></div>
+        <div class="turn-indicator opponent"></div>
         <div class="game-board-container">
             <div id="game-board-overlay"></div>
             <div class="main-message">
@@ -122,7 +123,8 @@
                 </tbody>
             </table>
         </div>
-        <div id="player-opponent-pieces" class="fallen-pieces"></div>
+        <div class="turn-indicator"></div>
+        <div id="player-fallen-pieces" class="fallen-pieces"></div>
     </div>
     <div class="sidebar">
         <div class="sidebar-content">
@@ -139,11 +141,11 @@
                     </tr>
                     <tr>
                         <td>50-Move Rule:</td>
-                        <td>---</td>
+                        <td class="fifty-move-rule-count">---</td>
                     </tr>
                     <tr>
                         <td>Pieces:</td>
-                        <td>---</td>
+                        <td><span class="pieces-remaining-count">0</span> of 21</td>
                     </tr>
                 </tbody>
             </table>

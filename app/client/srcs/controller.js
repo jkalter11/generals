@@ -5,15 +5,13 @@
  */
 var socket = io.connect(window.location.href);
 
-// this object contains all the event names that will
-// be communicated on Socket.IO, we take this from the
-// server so that we don't have to duplicate the names
-// at client side (see the "connected" IO event)
-var IOEvents,
+/**
+ * Event names
+ */
+var IOEvents, // we'll get these event names from server side once connected
     ViewEvents = tgo.views.Events;
 
-// our local reference for the objects to prevent too much typing
-// as well as useful in minification
+// our local reference for the objects to prevent too much typing as well as useful in minification
 var game = tgo.models.game,
     welcomeView = tgo.views.welcomeView,
     gameView = tgo.views.gameView,
@@ -67,7 +65,7 @@ function onViewCreateGame(data) {
  */
 function onGameCreated(data) {
     if (data.success) {
-        game.init(data.gameId, data.playerId, sanitizeHtml(data.playerName));
+        game.init(data.gameId, data.playerId, data.playerName);
         game.isCreated = true;
         gameView.show();
     } else {
@@ -107,24 +105,27 @@ function onPlayerJoined(data) {
     if (data.success) {
         if (game.isCreated) {
             // we are the one creating the game so the player who joins is our opponent
-            game.opponentName = sanitizeHtml(data.playerName);
-            gameView.playerJoined(true);
-            game.generatePieces();
-            gameView.createGamePieces();
+            game.opponentName = data.playerName;
+            gameView.playerJoined().done(function() {
+                game.generatePieces();
+                gameView.createGamePieces();
+            });
         } else {
             // we are joining this existing game
-            game.init(data.gameId, data.playerId, sanitizeHtml(data.playerName));
-            game.opponentName = sanitizeHtml(data.opponentName);
+            game.init(data.gameId, data.playerId, data.playerName);
+            game.opponentName = data.opponentName;
             // we did not create this game, we joined this game
             game.isCreated = false;
             // update the view
             gameView.show(function() {
-                gameView.playerJoined(false);
-                // let's prepare our game pieces
-                game.generatePieces();
-                gameView.createGamePieces();
+                gameView.playerJoined().done(function() {
+                    game.generatePieces();
+                    gameView.createGamePieces();
+                });
             });
         }
+        // we have someone to talk to now
+        chatView.init();
     } else {
         msgbox.show(data.error);
     }
@@ -150,7 +151,6 @@ function onPiecesSubmitted(data) {
         gameView.gamePiecesSubmitted(data.playerId, data.gamePieces, data.isStarted);
         // if the game has started, wait for the first player's move
         if (data.isStarted) {
-            chatView.init();
             if (game.isCreated) {
                 gameView.waitPlayersTurn();
             } else {
@@ -188,6 +188,7 @@ function onOpponentGamePieceSelected(data) {
 function onPlayerTakesTurn(data) {
     if (data.success) {
         // let's inform the view that the move is valid
+        game.noChallengeCount = data.noChallengeCount;
         gameView.onGamePieceMovedOrChallenged(data.result)
                 .done(function() {
                     if (data.isGameOver) {
@@ -217,9 +218,8 @@ function onViewMovesGamePiece(data) {
  *          or navigating to another address
  */
 function onPlayerLeft() {
-    msgbox.show('Your opponent has left the game. This game is over.', function() {
-        window.location.href = window.location.href;
-    });
+    msgbox.show('Your opponent has left the game. This game is over.');
+    gameView.lock();
 }
 
 /**
@@ -241,14 +241,6 @@ function onSendChatMessage(message) {
  */
 function onRecieveChatMessage(data) {
     chatView.addMessage(data.playerId == game.playerId ? game.playerName : game.opponentName, data.message);
-}
-
-/**
- * Utility function to clean HTML inputs
- */
-function sanitizeHtml(string) {
-    sanitizeHtml.span = sanitizeHtml.span || $('<span/>');
-    return sanitizeHtml.span.text(string).html();
 }
 
 })();
