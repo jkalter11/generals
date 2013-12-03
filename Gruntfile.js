@@ -36,12 +36,12 @@ module.exports = function(grunt) {
             options: { separator: ';' },
             js: {
                 src:  [
-                    'app/public/srcs/core.js',
-                    'app/public/srcs/view-main.js',
-                    'app/public/srcs/view-welcome.js',
-                    'app/public/srcs/view-game.js',
-                    'app/public/srcs/view-chat.js',
-                    'app/public/srcs/controller.js'
+                    'app/client/srcs/core.js',
+                    'app/client/srcs/view-main.js',
+                    'app/client/srcs/view-welcome.js',
+                    'app/client/srcs/view-game.js',
+                    'app/client/srcs/view-chat.js',
+                    'app/client/srcs/controller.js'
                 ],
                 dest: 'app/public/srcs/generals.js'
             }

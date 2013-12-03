@@ -4,7 +4,8 @@ $(function() {
     $('body')
         .css('overflow', 'auto')
         // all anchor links should be opened in a new tab/window
-        .delegate('a', 'click', function(e) {
+        // except the header
+        .delegate('.content a, .footer a, .social-links a', 'click', function(e) {
             e.preventDefault();
             e.returnValue = false;
             window.open(this.href);
@@ -28,13 +29,12 @@ tgo.views.Events = {
 };
 
 tgo.views.View = function() {
-    this.container = $('.content .container');
     this.templateId = '';
 };
 tgo.views.View.prototype = new tgo.models.EventEmitter();
 tgo.views.View.prototype.show = function(callback) {
+    var container = $('.content .container');
     var content = $('#' + this.templateId).html();
-    var container = this.container;
     var self = this;
 
     container.hide(function() {
@@ -50,10 +50,4 @@ tgo.views.View.prototype.show = function(callback) {
             });
         });
     });
-};
-
-tgo.views.msgbox = {
-    show: function(msg) {
-        window.alert(msg);
-    }
 };

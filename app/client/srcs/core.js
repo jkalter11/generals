@@ -1,5 +1,4 @@
 window.tgo = {
-    appName: 'The Generals Online v0.1.0',
     models: {},
     views: {}
 };
@@ -21,7 +20,7 @@ tgo.models.game = {
      * The name of the opponent
      * @type {String}
      */
-    opponentName: 'Anonymous',
+    opponentName: '',
 
     /**
      * The game pieces of the game, including the opponent

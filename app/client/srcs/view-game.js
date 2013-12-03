@@ -84,12 +84,13 @@ tgo.views.gameView = (function() {
             showMainMessage(
                 'Welcome <span class="emphasize">' + game.playerName +
                 '</span> to the <span class="emphasize">GAME OF THE GENERALS ONLINE</span>! ' +
-                'You GAME ID is <span class="emphasize">' + game.id + '</span>. Send this ID to your opponent ' +
-                'to play with a human player OR if you want to play with an AI Player (commonly "computer"), then ' +
+                'Your GAME ID is <span class="emphasize">' + game.id + '</span>. Send this ID to your friend (opponent) ' +
+                'to play with a human player OR if you want to play with an AI Player to practice first, then ' +
                 'click on the PLAY WITH AI button.')
             .done(function() {
                 mainMessage.append(playAIButton);
                 $('.game-id').text(game.id);
+                fiftyMoveRuleCount.text(0);
             });
         }
     }
@@ -120,7 +121,7 @@ tgo.views.gameView = (function() {
         return showMainMessage(message).done(function() {
             mainMessage.append(
                 'Arrange your game pieces strategically to prepare them to battle against your opponent. After that, ' +
-                'click on the SUBMIT GAME PIECES button. Good Luck!'
+                'click on the SUBMIT GAME PIECES button to officially start the game. <span class="emphasize">GOOD LUCK!</span>'
                 );
 
             mainMessage.append(submitGamePiecesButton);
@@ -128,7 +129,9 @@ tgo.views.gameView = (function() {
                 e.stopPropagation();
                 onSubmitGamePieces();
             });
-            $('.opponent-name').text(game.opponentName);
+            $('.opponent-name').text((game.isAgainstAI ? '(AI) ' : '') + game.opponentName);
+            $('.game-id').text(game.id);
+            fiftyMoveRuleCount.text(0);
             initGameBoardPositions();
         });
     }
@@ -158,7 +161,7 @@ tgo.views.gameView = (function() {
                     .attr('data-pos', position)
                     .data('position', position);
                 if (row > 5) {
-                    td.addClass('targetable');
+                    td.addClass('player-box-highlight');
                 }
                 column--;
                 position++;
@@ -177,7 +180,7 @@ tgo.views.gameView = (function() {
                     .attr('data-pos', position)
                     .data('position', position);
                 if (row > 5) {
-                    td.addClass('targetable');
+                    td.addClass('player-box-highlight');
                 }
                 column++;
                 position++;
@@ -247,7 +250,7 @@ tgo.views.gameView = (function() {
             playerId: game.playerId,
             gamePieces: getGamePiecesOnBoard()
         });
-        gameBoardBlocker.show();
+        lockGameBoard();
         closeMainMessage();
     }
 
@@ -275,10 +278,10 @@ tgo.views.gameView = (function() {
             closeMainMessage();
         } else {
             if (game.playerId == playerId) {
-                showMainMessage('Your game pieces have been submitted. Now waiting for <span class="emphasize">' + game.opponentName + '</span> to submit game pieces.');
+                showMainMessage('Your game pieces have been submitted. Now waiting for <span class="emphasize">' + game.opponentName + '</span> to submit his/her game pieces.');
                 piecesRemainingCount.text(gameBoard.find('.game-piece').not('.opponent').length);
             } else {
-                showMainMessage('<span class="emphasize">' + game.opponentName + '</span> has submitted game pieces. Submit your game pieces after arrangging them strategically.')
+                showMainMessage('<span class="emphasize">' + game.opponentName + '</span> has submitted his/her game pieces. Submit your game pieces after arrangging them strategically.')
                     .done(function() {
                         mainMessage.append(submitGamePiecesButton);
                         submitGamePiecesButton.on('click', function(e) {
@@ -300,13 +303,13 @@ tgo.views.gameView = (function() {
     }
 
     function waitPlayersTurn() {
-        gameBoardBlocker.hide();
+        lockGameBoard(false);
         clearSelectionStyles();
         playerTurnIndicator.addClass('active');
     }
 
     function waitForOpponentsTurn() {
-        gameBoardBlocker.show();
+        lockGameBoard();
         // this is a little hack since AI's responds so quickly the selections are cleared immediately
         // so we don't have to clear all selections for AI
         if (game.isAgainstAI) {
@@ -345,12 +348,12 @@ tgo.views.gameView = (function() {
         }
 
         // if the parent is not a target parent, then we should not allow moving this piece
-        if (!newParent.hasClass('targetable') && !newParent.hasClass('targeted')) {
+        if (!newParent.hasClass('targetable') && !newParent.hasClass('targeted') && !newParent.hasClass('player-box-highlight')) {
             return;
         }
 
         // let's block any user moves starting here
-        gameBoardBlocker.show();
+        lockGameBoard();
 
         if (game.hasStarted) {
 
@@ -409,7 +412,7 @@ tgo.views.gameView = (function() {
                     currentParent.removeClass('targeted');
                     newParent.removeClass('targeted');
                     // and allow other things to happen
-                    gameBoardBlocker.hide();
+                    lockGameBoard(false);
                 });
         }
     }
@@ -444,9 +447,8 @@ tgo.views.gameView = (function() {
         var deferred = $.when(
             cloned.animate({
                 top: newOffset.top,
-                left: newOffset.left,
-                duration: 'fast'
-            })
+                left: newOffset.left
+            }, 'fast')
         ).done(function() {
             element.show();
             // the clone has served its purpose so we'll remove it from the DOM
@@ -461,7 +463,8 @@ tgo.views.gameView = (function() {
         gameBoard.find('.game-piece').removeClass('selected');
         if (game.hasStarted) {
             gameBoardTDs.removeClass('targetable')
-                        .removeClass('targeted');
+                        .removeClass('targeted')
+                        .removeClass('player-box-highlight');
             opponentTurnIndicator.removeClass('active');
             playerTurnIndicator.removeClass('active');
         }
@@ -538,7 +541,7 @@ tgo.views.gameView = (function() {
         var newParent = gameBoard.find('td[data-pos="' + moveResult.newPosition + '"]');
         var deferred = null;
 
-        gameBoardBlocker.show();
+        lockGameBoard();
         if (moveResult.isChallenge) {
             // for the current player, you might be the referred opponentPiece
             var opponentPiece = newParent.find('.game-piece');
@@ -565,7 +568,7 @@ tgo.views.gameView = (function() {
         }
 
         return deferred.done(function() {
-            gameBoardBlocker.hide();
+            lockGameBoard(false);
             fiftyMoveRuleCount.text(game.noChallengeCount);
             piecesRemainingCount.text(gameBoard.find('.game-piece').not('.opponent').length);
         });
@@ -613,19 +616,19 @@ tgo.views.gameView = (function() {
         if (data.playerId) {
             if (data.noChallengeCount > 50) {
                 if (data.playerId == game.playerId) {
-                    deferred = showMainMessage('<span class="emphasize">CONGRATULATIONS! YOU WIN BY THE 50-MOVE RULE!</span>');
+                    deferred = showMainMessage('<span class="emphasize">CONGRATULATIONS ' + game.playerName + '! YOU WIN BY THE 50-MOVE RULE!</span>');
                 } else {
-                    deferred = showMainMessage('<span class="emphasize">SORRY! YOU LOSE BY THE 50-MOVE RULE!</span>');
+                    deferred = showMainMessage('<span class="emphasize">SORRY ' + game.playerName + '! YOU LOSE BY THE 50-MOVE RULE!</span>');
                 }
             } else {
                 if (data.playerId == game.playerId) {
-                    deferred = showMainMessage('<span class="emphasize">CONGRATULATIONS! YOU WIN!</span>');
+                    deferred = showMainMessage('<span class="emphasize">CONGRATULATIONS ' + game.playerName + '! YOU WIN!</span>');
                 } else {
-                    deferred = showMainMessage('<span class="emphasize">SORRY! YOU LOSE!</span>');
+                    deferred = showMainMessage('<span class="emphasize">SORRY ' + game.playerName + '! YOU LOSE!</span>');
                 }
             }
         } else {
-            deferred = showMainMessage('<span class="emphasize">THIS GAME IS A DRAW BY THE 50-MOVE RULE!</span>');
+            deferred = showMainMessage('<span class="emphasize">THIS GAME IS DECLARED A DRAW BY THE 50-MOVE RULE!</span>');
         }
 
         // let's build a hash of hash-code for faster accessing when we show the opponent game pieces
@@ -644,7 +647,7 @@ tgo.views.gameView = (function() {
         });
 
         clearSelectionStyles();
-        gameBoardBlocker.show();
+        lockGameBoard();
 
         deferred.done(function() {
             mainMessage.append(closeMainMessageButton);
@@ -654,19 +657,25 @@ tgo.views.gameView = (function() {
 
     function showMainMessage(message) {
         mainMessage.html(message);
-        return $.when(mainMessage.parent().animate({ height: 'show' }));
+        return $.when(mainMessage.parent().animate({ height: 'show' }, 'fast'));
     }
 
     function closeMainMessage() {
         return $.when(mainMessage.parent().animate({ height: 'hide' }));
     }
 
-    /**
-     * Utility function to clean HTML inputs
-     */
     function sanitizeHtml(string) {
         sanitizeHtml.span = sanitizeHtml.span || $('<span/>');
         return sanitizeHtml.span.text(string).html();
+    }
+
+    function lockGameBoard(state) {
+        state = state === undefined ? true : state;
+        if (state) {
+            gameBoardBlocker.show();
+        } else {
+            gameBoardBlocker.hide();
+        }
     }
 
     // public API
@@ -680,10 +689,9 @@ tgo.views.gameView = (function() {
     view.waitForOpponentsTurn = waitForOpponentsTurn;
     view.onGamePieceMovedOrChallenged = onGamePieceMovedOrChallenged;
     view.showGameOver = showGameOver;
-
-    view.lock = function() {
-        gameBoardBlocker.show();
-    }
+    view.showMainMessage = showMainMessage;
+    view.closeMainMessage = closeMainMessage;
+    view.lock = lockGameBoard;
 
     return view;
 

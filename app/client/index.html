@@ -13,12 +13,12 @@
             G<small>ENERALS</small>
         </a>
         <div class="social-links">
-            <a href="#" class="blogger" title="View more freebies at my blog"></a>
-            <a href="#" class="facebook" title="Like us at facebook"></a>
-            <a href="#" class="google-plus" title="Show us some love at Google Plus"></a>
-            <a href="#" class="twitter" title="Tweet us"></a>
-            <a href="#" class="youtube" title="View our tutorial"></a>
-            <a href="#" class="github" title="Fork/Watch/Whatever the source codes at Github"></a>
+            <a href="http://mttacder13.blogspot.com/" class="blogger" title="View more freebies at my blog"></a>
+            <a href="https://www.facebook.com/pages/The-Generals-Online/464208583699184" class="facebook" title="Like us at facebook"></a>
+            <a href="https://plus.google.com/111767637838040294806" class="google-plus" title="Show us some love at Google Plus"></a>
+            <a href="https://twitter.com/share?url=https%3A%2F%2Fgenerals.herokuapp.com&via=mttacder13&hashtags=the-generals-online" class="twitter" title="Tweet us"></a>
+            <a href="http://www.youtube.com/watch?v=2Kqx-Ti5PUE" class="youtube" title="View our tutorial"></a>
+            <a href="https://github.com/mttacder/generals" class="github" title="Fork/Watch/Whatever the source codes at Github"></a>
         </div>
     </div>
 </div>
@@ -31,8 +31,8 @@
             <h3>About the Author</h3>
             <img src="themes/default/author.jpg" alt="Marjun T. Tacder" title="Marjun T. Tacder">
             <p>I am a software engineer, currently working for a US-based, start-up company. I have been working on desktop, web and mobile software development for the last 5 years as of this writing.</p>
-            <p>I consider coding as a day job and a past time. I like to play video games, the guitar (I'm a former band member) among others. I like to build products that I can personally use and enjoy then share them freely online like Tong-Its, Lyricist, this game, among others.</p>
-            <p>Oh, and I have Mitral Valve Prolapse with the ever common anxiety issues which most people don't understand. I don't think people should hide if they have this condition and pretend that they don't have it.</p>
+            <p>I consider coding as a day job and a past time. I like to play video games, the guitar (I'm a former band member) among others. I like to build products that I can personally use and enjoy then share them freely online like <a href="http://mttacder13.blogspot.com/2011/12/free-tong-its-for-windows-pc.html">Tong-Its</a>, <a href="http://mttacder13.blogspot.com/2011/10/lyricist-version-2000-audio-player-that.html">Lyricist</a>, this game, among others.</p>
+            <p>Oh, and I have <a href="http://en.wikipedia.org/wiki/Mitral_valve_prolapse">Mitral Valve Prolapse</a> with the ever common anxiety issues that goes with it which most people don't understand. I don't think people should hide if they have this condition and pretend that they don't have it.</p>
         </div>
         <div class="block">
             <h3>About Game of the Generals</h3>
@@ -61,7 +61,8 @@
                 <img src="themes/default/browsers/opera.png" alt="Opera">
                 <img src="themes/default/browsers/ie.png" alt="IE Latest">
             </div>
-            <p>Warning: IE 8 and below are not tested. Please do yourself a favor and upgrade to the latest IE browser. Or use Google Chrome or Mozilla Firefox.</p>
+            <br>
+            <p>Warning: IE 9 and below were not tested but I can't say that you can't use them nor I will say that you should use them. Please do yourself a favor and upgrade to the latest IE browser. Or better yet, use Google Chrome or Mozilla Firefox.</p>
         </div>
     </div>
     <p class="copyright">&copy; 2013 Marjun T. Tacder</p>
@@ -97,7 +98,7 @@
         <a href="themes/default/board-actual.png">
             <img src="themes/default/board-actual.png" alt="Game of the Generals">
         </a>
-        <p>This is an actual board that I also happened to have used way back then I started playing this game but I haven't played this game for while after I left college since not many are familiar with it.</p>
+        <p>This is an actual board of the game that I also happened to have used way back then I started playing this game.</p>
     </div>
 </script>
 <script id="game-template" type="text/template">
@@ -151,9 +152,12 @@
             </table>
         </div>
         <div class="sidebar-content">
+            <a class="button default" href="/help" style="display: block;" onclick="window.open(this.href, 'generals-help', 'width=500,height=500,directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=1');return 0;">VIEW HELP</a>
+        </div>
+        <div class="sidebar-content">
             <h4>Messages</h4>
             <ul id="chat-content"></ul>
-            <input id="chat-input" type="text" readonly>
+            <input id="chat-input" type="text" placeholder="send message to your opponent" readonly>
         </div>
     </div>
 </script>

@@ -9,14 +9,13 @@ var socket = io.connect(window.location.href);
  * Event names
  */
 var IOEvents, // we'll get these event names from server side once connected
-    ViewEvents = tgo.views.Events;
+    ViewEvents = tgo.views.Events; // these are event names used by our view/controller
 
 // our local reference for the objects to prevent too much typing as well as useful in minification
 var game = tgo.models.game,
     welcomeView = tgo.views.welcomeView,
     gameView = tgo.views.gameView,
-    chatView = tgo.views.chatView,
-    msgbox = tgo.views.msgbox;
+    chatView = tgo.views.chatView;
 
 // when we connected, we want to watch for some events
 // which are defined in the server (IOEvents)
@@ -69,7 +68,7 @@ function onGameCreated(data) {
         game.isCreated = true;
         gameView.show();
     } else {
-        msgbox.show(data.error);
+        logError(data);
     }
 }
 
@@ -109,6 +108,8 @@ function onPlayerJoined(data) {
             gameView.playerJoined().done(function() {
                 game.generatePieces();
                 gameView.createGamePieces();
+                // we have someone to talk to now
+                chatView.init();
             });
         } else {
             // we are joining this existing game
@@ -121,13 +122,13 @@ function onPlayerJoined(data) {
                 gameView.playerJoined().done(function() {
                     game.generatePieces();
                     gameView.createGamePieces();
+                    // we have someone to talk to now
+                    chatView.init();
                 });
             });
         }
-        // we have someone to talk to now
-        chatView.init();
     } else {
-        msgbox.show(data.error);
+        logError(data);
     }
 }
 
@@ -158,7 +159,7 @@ function onPiecesSubmitted(data) {
             }
         }
     } else {
-        msgbox.show(data.error);
+        logError(data);
     }
 }
 
@@ -204,7 +205,7 @@ function onPlayerTakesTurn(data) {
                     }
                 });
     } else {
-        msgbox.show(data.error);
+        logError(data);
     }
 }
 
@@ -218,8 +219,8 @@ function onViewMovesGamePiece(data) {
  *          or navigating to another address
  */
 function onPlayerLeft() {
-    msgbox.show('Your opponent has left the game. This game is over.');
     gameView.lock();
+    gameView.showMainMessage('Your opponent has left the game. This game is over. Click on the header link to start a new game.');
 }
 
 /**
@@ -241,6 +242,10 @@ function onSendChatMessage(message) {
  */
 function onRecieveChatMessage(data) {
     chatView.addMessage(data.playerId == game.playerId ? game.playerName : game.opponentName, data.message);
+}
+
+function logError(data) {
+    alert(data.error);
 }
 
 })();
