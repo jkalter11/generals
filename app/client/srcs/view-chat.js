@@ -12,6 +12,9 @@ tgo.views.chatView = (function() {
             if (e.keyCode == 13 && this.value) {
                 view.emit(tgo.views.Events.CHAT_MESSAGE, this.value);
                 this.value = '';
+                e.preventDefault();
+                e.stopPropagation();
+                e.returnValue = false;
             }
         });
 

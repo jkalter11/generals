@@ -40,7 +40,7 @@ tgo.views.gameView = (function() {
         submitGamePiecesButton.text('SUBMIT GAME PIECES');
 
         playAIButton = $('<button class="button submit">');
-        playAIButton.text('PRACTICE WITH AI');
+        playAIButton.text('PLAY WITH AI');
         playAIButton.on('click', function(e) {
             e.stopPropagation();
             onPlayWithAI();
@@ -284,6 +284,9 @@ tgo.views.gameView = (function() {
                 showMainMessage('<span class="emphasize">' + game.opponentName + '</span> has submitted his/her game pieces. Submit your game pieces after arrangging them strategically.')
                     .done(function() {
                         mainMessage.append(submitGamePiecesButton);
+                        // ie appears like removing the text of this jquery object
+                        // once it's removed from the DOM.. smh...
+                        submitGamePiecesButton.text('SUBMIT GAME PIECES');
                         submitGamePiecesButton.on('click', function(e) {
                             e.stopPropagation();
                             onSubmitGamePieces();
@@ -512,6 +515,9 @@ tgo.views.gameView = (function() {
         }
 
         clearSelectionStyles();
+        if (game.hasStarted) {
+            playerTurnIndicator.addClass('active');
+        }
         gamePiece.addClass('selected');
         // and if the game has already started,
         // then we should show the user all the possible
@@ -657,11 +663,11 @@ tgo.views.gameView = (function() {
 
     function showMainMessage(message) {
         mainMessage.html(message);
-        return $.when(mainMessage.parent().animate({ height: 'show' }, 'fast'));
+        return $.when(mainMessage.parent().animate({ height: 'show', opacity: 1.0 }, 'fast'));
     }
 
     function closeMainMessage() {
-        return $.when(mainMessage.parent().animate({ height: 'hide' }));
+        return $.when(mainMessage.parent().animate({ height: 'hide', opacity: 0 }));
     }
 
     function sanitizeHtml(string) {

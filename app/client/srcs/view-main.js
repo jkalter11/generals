@@ -40,7 +40,7 @@ tgo.views.View.prototype.show = function(callback) {
     container.hide(function() {
         container.fadeOut(function() {
             container.html(content);
-            container.show(function() {
+            container.animate({ height: 'show' }, function() {
                 if (typeof self.init == 'function') {
                     self.init();
                 }

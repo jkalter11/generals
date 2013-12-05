@@ -26,14 +26,8 @@
     <div class="container"></div>
 </div>
 <div class="footer">
+    <p class="copyright">&copy; 2013 Marjun T. Tacder</p>
     <div class="container">
-        <div class="block">
-            <h3>About the Author</h3>
-            <img src="themes/default/author.jpg" alt="Marjun T. Tacder" title="Marjun T. Tacder">
-            <p>I am a software engineer, currently working for a US-based, start-up company. I have been working on desktop, web and mobile software development for the last 5 years as of this writing.</p>
-            <p>I consider coding as a day job and a past time. I like to play video games, the guitar (I'm a former band member) among others. I like to build products that I can personally use and enjoy then share them freely online like <a href="http://mttacder13.blogspot.com/2011/12/free-tong-its-for-windows-pc.html">Tong-Its</a>, <a href="http://mttacder13.blogspot.com/2011/10/lyricist-version-2000-audio-player-that.html">Lyricist</a>, this game, among others.</p>
-            <p>Oh, and I have <a href="http://en.wikipedia.org/wiki/Mitral_valve_prolapse">Mitral Valve Prolapse</a> with the ever common anxiety issues that goes with it which most people don't understand. I don't think people should hide if they have this condition and pretend that they don't have it.</p>
-        </div>
         <div class="block">
             <h3>About Game of the Generals</h3>
             <img src="themes/default/gg-cover.jpg" alt="Game of the Generals" title="Box cover of the 1981 version">
@@ -42,8 +36,7 @@
             <p>All you have to do is remember who's rank is greater than who (eg: a 5 star general (GOA) is greater than a 3 star (LTG) or 4 star general (GEN) but all these generals and ranked pieces are no match to the spy (SPY) yet the spy (SPY) is no match to the unranked private (PVT)).</p>
             <p>Intrigued? For more information, here's a <a href="http://en.wikipedia.org/wiki/Game_of_the_Generals">detailed Wikipedia page</a> for this game.</p>
         </div>
-        <div class="clearfix"></div>
-        <div class="attributions">
+        <div class="block attributions">
             <h3>Powered by:</h3>
             <div>
                 <a href="http://nodejs.org/"><img src="themes/default/third-party/node.js.png" alt="Node.js"></a>
@@ -52,7 +45,17 @@
                 <a href="http://jquery.com/"><img src="themes/default/third-party/jQuery.png" alt="jQuery"></a>
             </div>
         </div>
-        <div class="attributions">
+        <div class="clearfix"></div>
+    </div>
+    <div class="container">
+        <div class="block">
+            <h3>About the Author</h3>
+            <img src="themes/default/author.jpg" alt="Marjun T. Tacder" title="Marjun T. Tacder">
+            <p>I am a software engineer, currently working for a US-based, start-up company. I have been working on desktop, web and mobile software development for the last 5 years as of this writing.</p>
+            <p>I consider coding as a day job and a past time. I like to play video games, the guitar (I'm a former band member) among others. I like to build products that I can personally use and enjoy then share them freely online like <a href="http://mttacder13.blogspot.com/2011/12/free-tong-its-for-windows-pc.html">Tong-Its</a>, <a href="http://mttacder13.blogspot.com/2011/10/lyricist-version-2000-audio-player-that.html">Lyricist</a>, this game, among others.</p>
+            <p>Oh, and I have <a href="http://en.wikipedia.org/wiki/Mitral_valve_prolapse">Mitral Valve Prolapse</a> with the ever common anxiety issues that goes with it which most people don't understand. I don't think people should hide if they have this condition and pretend that they don't have it.</p>
+        </div>
+        <div class="block attributions">
             <h3>Best viewed with the latest browsers:</h3>
             <div>
                 <img src="themes/default/browsers/safari.png" alt="Safari">
@@ -61,11 +64,11 @@
                 <img src="themes/default/browsers/opera.png" alt="Opera">
                 <img src="themes/default/browsers/ie.png" alt="IE Latest">
             </div>
-            <br>
+            <br class="clearfix">
             <p>Warning: IE 9 and below were not tested but I can't say that you can't use them nor I will say that you should use them. Please do yourself a favor and upgrade to the latest IE browser. Or better yet, use Google Chrome or Mozilla Firefox.</p>
         </div>
+        <div class="clearfix"></div>
     </div>
-    <p class="copyright">&copy; 2013 Marjun T. Tacder</p>
 </div>
 <div class="javascript-notice-container">
     <div class="javascript-notice">
@@ -152,12 +155,12 @@
             </table>
         </div>
         <div class="sidebar-content">
-            <a class="button default" href="/help" style="display: block;" onclick="window.open(this.href, 'generals-help', 'width=500,height=500,directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=1');return 0;">VIEW HELP</a>
-        </div>
-        <div class="sidebar-content">
             <h4>Messages</h4>
             <ul id="chat-content"></ul>
             <input id="chat-input" type="text" placeholder="send message to your opponent" readonly>
+        </div>
+        <div class="sidebar-content">
+            <a class="button submit" href="/help" style="display: block;" onclick="window.open(this.href, 'generals-help', 'width=500,height=500,directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=1');return 0;">VIEW HELP</a>
         </div>
     </div>
 </script>
