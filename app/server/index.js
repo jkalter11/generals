@@ -29,6 +29,7 @@ router.handle(app, controller);
 
 // We don't want to listen "too much" from Socket.IO logs
 io.enable('browser client minification');
+io.set('transports', [ 'websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling' ]);
 io.set('log level', 1);
 
 // Then, let's listen for connections.

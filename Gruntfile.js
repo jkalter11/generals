@@ -99,13 +99,6 @@ module.exports = function(grunt) {
                     spawn: false
                 }
             }
-        },
-
-        removelogging: {
-            js: {
-                src:  'app/public/srcs/generals.js',
-                dest: 'app/public/srcs/generals.js'
-            }
         }
 
     });
@@ -118,8 +111,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-scriptlinker');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-remove-logging');
 
     grunt.registerTask('dev', [ 'jshint', 'clean', 'copy:dev', 'scriptlinker:dev' ] );
-    grunt.registerTask('prod', [ 'clean', 'copy:prod', 'concat', 'cssmin:prod', 'uglify', 'scriptlinker:prod', 'removelogging' ] );
+    grunt.registerTask('prod', [ 'clean', 'copy:prod', 'concat', 'cssmin:prod', 'uglify', 'scriptlinker:prod' ] );
 };

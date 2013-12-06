@@ -139,7 +139,7 @@ a img {
 
 .header .app-name {
     display: inline-block;
-    background: url(logo.png) no-repeat center left;
+    background: url(../logo.png) no-repeat center left;
     background-size: 50px;
     font-size: 50px;
     font-weight: 900;
