@@ -8,20 +8,20 @@ tgo.views.chatView = (function() {
         chatInput = $('#chat-input');
 
         chatInput.removeAttr('readonly');
-        chatInput.on('keyup', function(e) {
+        chatInput.on('keydown', function(e) {
             if (e.keyCode == 13 && this.value) {
-                view.emit(tgo.views.Events.CHAT_MESSAGE, this.value);
-                this.value = '';
+                e.cancelBubble = true;
                 e.preventDefault();
                 e.stopPropagation();
-                e.returnValue = false;
+                view.emit(tgo.views.Events.CHAT_MESSAGE, this.value);
+                this.value = '';
             }
         });
 
     };
 
     view.addMessage = function (sender, message) {
-        var li = $('<li><span class="sender">' + sender + '</span>' + message + '</li>');
+        var li = $('<li><span class="sender">' + sender + '</span><span class="message">' + message + '</span></li>');
         messageList.append(li);
         messageList.scrollTop(messageList[0].scrollHeight);
     };

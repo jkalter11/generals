@@ -172,6 +172,7 @@ a img {
 .header .app-name:hover {
     opacity: 1.0;
     color: #eee;
+    background-image: url(../logo_ic.png);
 }
 
 .header .app-name:hover .prelude {
@@ -242,18 +243,18 @@ a img {
     margin-right: 50px;
 }
 
-.footer .block h3 {
+.footer h3 {
     margin-bottom: 10px;
 }
 
-.footer .block img {
+.footer img {
     float: left;
     margin: 0 10px 0 0;
     max-height: 100px;
     border: 3px solid #555;
 }
 
-.footer .block p {
+.footer p {
     margin-bottom: 8px;
 }
 
@@ -263,6 +264,10 @@ a img {
     border: none!important;
 }
 
+.attributions a:last-child img {
+    margin-right: 0;
+}
+
 .attributions p {
     margin-top: 20px;
 }
@@ -270,6 +275,12 @@ a img {
 .copyright {
     padding-top: 10px;
     text-align: center;
+}
+
+.author-footer {
+    margin-top: 50px;
+    padding-top: 10px;
+    border-top: 1px solid #aaa;
 }
 
 /* content styles */
@@ -453,7 +464,7 @@ a img {
     margin: 0 auto;
     margin-top: 5px;
     margin-bottom: 5px;
-    border: 3px outset #888;
+    border: 3px outset #333;
     border-spacing: 1px;
     background: url(board-texture.gif);
 }
@@ -461,10 +472,15 @@ a img {
 #game-board tr:nth-child(1),
 #game-board tr:nth-child(2),
 #game-board tr:nth-child(3),
+#game-board tr:nth-child(4) {
+    background-color: rgba(255,0,0,0.05);
+}
+
+#game-board tr:nth-child(5),
 #game-board tr:nth-child(6),
 #game-board tr:nth-child(7),
 #game-board tr:nth-child(8) {
-    background-color: rgba(0,0,0,0.1);
+    background-color: rgba(0,0,255,0.05);
 }
 
 #game-board td {
@@ -542,7 +558,7 @@ a img {
     width: 62px;
     margin: 0 auto;
     background-color: #ddd;
-    border: 2px solid #999;
+    border: 2px solid #777;
     border-radius: 4px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -809,7 +825,7 @@ a img {
     margin: 0 auto;
     width: 100%;
     font-size: 12px;
-    background-color: #2ecc71;
+    background-color: #ddd;
     border: 2px solid #2980b9;
     padding: 5px;
     -moz-box-sizing: border-box;

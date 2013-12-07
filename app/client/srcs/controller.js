@@ -1,4 +1,4 @@
-(function() {
+$(function() {
 
 /**
  * Handles OI Server-Client Communication
@@ -34,6 +34,12 @@ socket.on('connected', function(data) {
 
 });
 
+socket.on('error', function(e) {
+    alert('ERROR: Unable to connect Socket.IO. Please try again by clicking on the header link to start a new game.');
+    gameView.lock();
+    game.hasStarted = false;
+});
+
 // handle view events
 welcomeView.on(ViewEvents.CREATE_GAME, onViewCreateGame);
 welcomeView.on(ViewEvents.JOIN_GAME, onViewJoinGame);
@@ -54,7 +60,11 @@ welcomeView.show();
  * Data:    playerName
  */
 function onViewCreateGame(data) {
-    socket.emit(IOEvents.CREATE_GAME, data);
+    try {
+        socket.emit(IOEvents.CREATE_GAME, data);
+    } catch (err) {
+        alert('The game is still preparing. Please try again in a few seconds. Thanks');
+    }
 }
 
 /**
@@ -195,6 +205,7 @@ function onPlayerTakesTurn(data) {
                     if (data.isGameOver) {
                         // the current player is the winner
                         gameView.showGameOver(data);
+                        game.hasStarted = false;
                     } else {
                         // get the next turn
                         if (data.playerId == game.playerId) {
@@ -220,6 +231,7 @@ function onViewMovesGamePiece(data) {
  */
 function onPlayerLeft() {
     gameView.lock();
+    game.hasStarted = false;
     gameView.showMainMessage('Your opponent has left the game. This game is over. Click on the header link to start a new game.');
 }
 
@@ -246,6 +258,19 @@ function onRecieveChatMessage(data) {
 
 function logError(data) {
     alert(data.error);
+    console.log(data);
 }
 
-})();
+window.onbeforeunload = function(e) {
+    if (game.hasStarted) {
+        if (!e) e = window.event;
+        e.cancelBubble = true;
+        e.returnValue = 'Are you sure you want to leave this current game?';
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+};
+
+});

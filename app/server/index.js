@@ -27,9 +27,11 @@ app.use(express.static('app/public'));
 // Now, let's handle application requests
 router.handle(app, controller);
 
-// We don't want to listen "too much" from Socket.IO logs
+// minify socket.io since we don't really debug this one
 io.enable('browser client minification');
+// let's enable all transports
 io.set('transports', [ 'websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling' ]);
+// We don't want to listen "too much" from Socket.IO logs
 io.set('log level', 1);
 
 // Then, let's listen for connections.

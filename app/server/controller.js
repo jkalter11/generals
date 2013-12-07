@@ -109,10 +109,8 @@ function onCreateGame(data) {
         var game = new gm.Game();
         // create our first player who creates this game
         game.createPlayer(data.playerName, true);
-
         // add the new game to our game database
         gameDb.add(game);
-
         // let's create a game room for this game
         this.join(game.id);
 
@@ -125,7 +123,6 @@ function onCreateGame(data) {
             playerId: game.playerA.id,
             playerName: data.playerName
         });
-
     } catch (error) {
         emitError(this, IOEvents.GAME_CREATED, error);
     }
@@ -158,12 +155,10 @@ function onPlayerJoin(data) {
     try {
         // let's retrieve the game from the database
         var game = gameDb.get(data.gameId);
-
         // TRY to join to the game (if possible)
         // these lines of codes will throw exception
         // when the game state is not valid
         game.createPlayer(data.playerName, false);
-
         // it looks like we are fine so, join the game room
         this.join(game.id);
 
@@ -175,7 +170,6 @@ function onPlayerJoin(data) {
             playerName: data.playerName,
             opponentName: game.playerA.name
         });
-
     } catch (error) {
         emitError(this, IOEvents.PLAYER_JOINED, error);
     }
@@ -192,10 +186,8 @@ function onSubmitPieces(data) {
     try {
         // let's get the game from the database
         var game = gameDb.get(data.gameId);
-
         // okay, let's do this, this method throws excetions for validation errors
         game.setPlayerPieces(data.playerId, data.gamePieces);
-
         // now, these game pieces needs to be broadcasted to the other
         // clients but we don't want to expose the ranks (no cheating),
         // just the positions and hash codes
@@ -218,7 +210,6 @@ function onSubmitPieces(data) {
             // we can start the game starting with player A
             isStarted: game.state == gm.Game.States.START
         });
-
     } catch (error) {
         emitError(this, IOEvents.PIECES_SUBMITTED, error);
     }
@@ -245,7 +236,6 @@ function onPieceSelected(data) {
  *         pieces(Array - all the game pieces when the game is over)
  */
 function onPlayerTakesTurn(data) {
-
     try {
         // let's get the game from the database
         var game = gameDb.get(data.gameId);
@@ -279,14 +269,12 @@ function onPlayerTakesTurn(data) {
                 error: 'Invalid move.'
             });
         }
-
     } catch (error) {
         emitError(this, IOEvents.PLAYER_TAKES_TURN, error);
     }
 }
 
 function onDisconnect() {
-
     // let's emit an event ONLY when we are not in the default blank room
     for (var room in io.sockets.manager.roomClients[this.id]) {
         if (room) {

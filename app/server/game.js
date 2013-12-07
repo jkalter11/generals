@@ -100,8 +100,7 @@ Game.prototype.createPlayer = function(playerName, isPlayerA) {
         throw new Error('Game is not initialized. Game state: ' + this.state);
     }
     // and that the player is not yet set
-    if ((this.playerA && isPlayerA) ||
-        (this.playerB && !isPlayerA)) {
+    if ((this.playerA && isPlayerA) || (this.playerB && !isPlayerA)) {
         throw new Error('Player is already set.');
     }
     // a player name is required for the opponent
@@ -411,7 +410,7 @@ Player.prototype.value = function() {
  * @return {Object}          The game piece
  */
 Player.prototype.getPiece = function(position) {
-    for (var i = 0; i < this.pieces.length; i++) {
+    for (var i = 0, j = this.pieces.length; i < j; i++) {
         if (this.pieces[i].position == position) {
             return this.pieces[i];
         }
@@ -483,7 +482,7 @@ Board.prototype.placePieces = function(pieces, isPlayerA) {
 
     // first, validate the pieces' positions
     var takenPositions = [];
-    for (var i = 0; i < pieces.length; i++) {
+    for (var i = 0, j = pieces.length; i < j; i++) {
         var piece = pieces[i];
         // check if a piece has a position
         if (piece.position == -1) {
@@ -509,7 +508,7 @@ Board.prototype.placePieces = function(pieces, isPlayerA) {
     }
 
     // it passed so we set the board pieces
-    for (var i = 0; i < pieces.length; i++) {
+    for (var i = 0, j = pieces.length; i < j; i++) {
         this.pieces[pieces[i].position] = pieces[i];
     }
 };

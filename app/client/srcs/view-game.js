@@ -663,11 +663,11 @@ tgo.views.gameView = (function() {
 
     function showMainMessage(message) {
         mainMessage.html(message);
-        return $.when(mainMessage.parent().animate({ height: 'show', opacity: 1.0 }, 'fast'));
+        return $.when(mainMessage.parent().animate({ height: 'show' }, 'fast'));
     }
 
     function closeMainMessage() {
-        return $.when(mainMessage.parent().animate({ height: 'hide', opacity: 0 }));
+        return $.when(mainMessage.parent().animate({ height: 'hide' }));
     }
 
     function sanitizeHtml(string) {
