@@ -35,9 +35,11 @@ socket.on('connected', function(data) {
 });
 
 socket.on('error', function(e) {
-    alert('ERROR: Unable to connect Socket.IO. Please try again by clicking on the header link to start a new game.');
-    gameView.lock();
-    game.hasStarted = false;
+    if (game.hasStarted) {
+        alert('ERROR: Unable to connect Socket.IO. Please try again by clicking on the header link to start a new game.');
+        gameView.lock();
+        game.hasStarted = false;
+    }
 });
 
 // handle view events

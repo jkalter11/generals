@@ -6,8 +6,23 @@
 exports.handle = function(app, controller) {
 
     app.get('/stats', function(request, response) {
+
+        var gameInfos = [];
+
+        for (var id in controller.gameDb._cache) {
+            var game = controller.gameDb._cache[id];
+            gameInfos.push({
+                id: game.id,
+                state: game.state,
+                noChallengeCount: game.noChallengeCount,
+                playerAName: game.playerA.name,
+                playerBName: game.playerB ? game.playerB.name : ''
+            });
+        }
+
         response.send({
-            gameCount: controller.gameDb.count.toLocaleString()
+            count: gameInfos.length,
+            online: gameInfos
         });
     });
 

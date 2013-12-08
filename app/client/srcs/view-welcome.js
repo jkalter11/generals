@@ -25,6 +25,7 @@ tgo.views.welcomeView = (function() {
         view.emit(tgo.views.Events.CREATE_GAME, {
             playerName: playerName.val()
         });
+        $('#create-game').remove();
     }
 
     function onJoinGameGameButtonClick(e) {
@@ -38,6 +39,7 @@ tgo.views.welcomeView = (function() {
             playerName: playerName.val(),
             gameId: gameId.val()
         });
+        $('#join-game').remove();
     }
 
     function areFieldsNotEmpty() {

@@ -643,13 +643,18 @@ tgo.views.gameView = (function() {
             hashCodes[data.pieceInfos[key].HASH] = key;
         }
 
+        console.log('Hashed game piece codes: ', data.pieceInfos);
         // then, let's reveal all the opponent pieces
-        $('.game-area .game-piece.opponent').each(function(i, el) {
+        opponentFallenPieces.find('.game-piece').each(function(i, el) {
             var element = $(el);
             var hash = element.data('hash');
             var code = hashCodes[hash];
-            element.addClass('game-piece-' + code);
-            element.html('<span class="code">' + code + '</span>');
+            if (code) {
+                element.addClass('game-piece-' + code);
+                element.html('<span class="code">' + code + '</span>');
+            } else {
+                console.log('Unable to compute game piece code from hash: ' + hash);
+            }
         });
 
         clearSelectionStyles();
