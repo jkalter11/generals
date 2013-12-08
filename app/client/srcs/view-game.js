@@ -637,16 +637,15 @@ tgo.views.gameView = (function() {
             deferred = showMainMessage('<span class="emphasize">THIS GAME IS DECLARED A DRAW BY THE 50-MOVE RULE!</span>');
         }
 
-        // let's build a hash of hash-code for faster accessing when we show the opponent game pieces
-        var hashCodes = {};
-        for (var key in data.pieceInfos) {
-            hashCodes[data.pieceInfos[key].HASH] = key;
-        }
-
-        console.log('Hashed game piece codes: ', data.pieceInfos);
         // then, let's reveal all the opponent pieces
-        opponentFallenPieces.find('.game-piece').each(function(i, el) {
-            var element = $(el);
+        // first, let's reverse the hash for perf
+        var hashCodes = {};
+        for (var code in data.pieceHashes) {
+            hashCodes[data.pieceHashes[code]] = code;
+        }
+        console.log('Hashed game piece codes: ', hashCodes);
+        $('.game-area .game-piece.opponent').each(function() {
+            var element = $(this);
             var hash = element.data('hash');
             var code = hashCodes[hash];
             if (code) {

@@ -78,20 +78,14 @@ GameDb.prototype.remove = function(gameId) {
 function Game() {
     // generate the game ID
     this.id = Game.uuid();
-
     // initialize our board
     this.board = new Board();
-
     // set the game state to INITIALIZED
     this.state = Game.States.INITIALIZED;
-
-    // this flag holds the number of consecutive moves where there is challenge
-    // after that 50 moves, each player's pieces will be computed and the larger's
-    // value will be declared the winner (or draw if both are equal)
+    // the number of consecutive moves by both players where no one has initiated a challenge
     this.noChallengeCount = 0;
-
-    // let's create a hash for all game pieces for this game session
-    Piece.resetItemHashes(Game.uuid());
+    // let's create a hash for all game pieces for this particular game session
+    this.pieceHashes = Piece.createPieceHashcodes(Game.uuid());
 }
 
 Game.prototype.createPlayer = function(playerName, isPlayerA) {
@@ -172,7 +166,6 @@ Game.prototype.setPlayerPieces = function(playerId, pieces) {
  *                                        -1 if challenger loses
  */
 Game.prototype.challenge = function(challenger, challenged) {
-
     // equal ranks that are not flag, both pieces are eliminated
     if (challenger.rank == challenged.rank && challenger.rank) {
         return 0;
@@ -217,12 +210,10 @@ Game.prototype.takeTurn = function(playerId, oldPosition, newPosition) {
     var player = this.getPlayer(playerId);
     var piece = player.getPiece(oldPosition);
     var result = this.board.movePiece(player, piece, newPosition, this.challenge);
-
-    // let's move the piece, if a valid move, then change the current player and return true
+    // let's move the piece, if a valid move, then change the current player
     if (result.success) {
         this.currentPlayer = this.currentPlayer == this.playerA ? this.playerB : this.playerA;
     }
-    // and to keep track of the 50-move rule
     if (result.isChallenge) {
         this.noChallengeCount = 0;
     } else {
@@ -261,7 +252,6 @@ Game.prototype.checkGameOver = function() {
         this.state = Game.States.OVER;
         var valueA = this.playerA.value();
         var valueB = this.playerB.value();
-
         if (valueA == valueB) {
             this.currentPlayer = null;
         } else if (valueA > valueB) {
@@ -340,10 +330,7 @@ Player.prototype.setPieces = function(pieces) {
     // the game checks the number of pieces
     // the board checks the positioning of the pieces
     // now we check if all ranks are complete
-    var allRanks = [
-        'GOA', 'GEN', 'LTG', 'MAG', 'BRG', 'COL', 'LTC', 'MAJ', 'CPT', '1LT',
-        '2LT', 'SGT', 'PVT', 'PVT', 'PVT', 'PVT', 'PVT', 'PVT', 'SPY', 'SPY', 'FLG'
-        ];
+    var allRanks = [ 'GOA', 'GEN', 'LTG', 'MAG', 'BRG', 'COL', 'LTC', 'MAJ', 'CPT', '1LT', '2LT', 'SGT', 'PVT', 'PVT', 'PVT', 'PVT', 'PVT', 'PVT', 'SPY', 'SPY', 'FLG' ];
 
     for (var i = 0, j = pieces.length; i < j; i++) {
         var index = allRanks.indexOf(pieces[i].code);
@@ -436,28 +423,30 @@ Piece.prototype.isFlag = function() {
 };
 
 Piece.ITEMS = {
-    'GOA': { RANK: 14, VALUE: 7.80, HASH: '' },
-    'SPY': { RANK: 13, VALUE: 7.50, HASH: '' },
-    'GEN': { RANK: 12, VALUE: 6.95, HASH: '' },
-    'LTG': { RANK: 11, VALUE: 6.15, HASH: '' },
-    'MAG': { RANK: 10, VALUE: 5.40, HASH: '' },
-    'BRG': { RANK:  9, VALUE: 4.70, HASH: '' },
-    'COL': { RANK:  8, VALUE: 4.05, HASH: '' },
-    'LTC': { RANK:  7, VALUE: 3.45, HASH: '' },
-    'MAJ': { RANK:  6, VALUE: 2.90, HASH: '' },
-    'CPT': { RANK:  5, VALUE: 2.40, HASH: '' },
-    '1LT': { RANK:  4, VALUE: 1.95, HASH: '' },
-    '2LT': { RANK:  3, VALUE: 1.55, HASH: '' },
-    'SGT': { RANK:  2, VALUE: 1.20, HASH: '' },
-    'PVT': { RANK:  1, VALUE: 1.37, HASH: '' },
-    'FLG': { RANK:  0, VALUE: 0.00, HASH: '' }
+    'GOA': { RANK: 14, VALUE: 7.80 },
+    'SPY': { RANK: 13, VALUE: 7.50 },
+    'GEN': { RANK: 12, VALUE: 6.95 },
+    'LTG': { RANK: 11, VALUE: 6.15 },
+    'MAG': { RANK: 10, VALUE: 5.40 },
+    'BRG': { RANK:  9, VALUE: 4.70 },
+    'COL': { RANK:  8, VALUE: 4.05 },
+    'LTC': { RANK:  7, VALUE: 3.45 },
+    'MAJ': { RANK:  6, VALUE: 2.90 },
+    'CPT': { RANK:  5, VALUE: 2.40 },
+    '1LT': { RANK:  4, VALUE: 1.95 },
+    '2LT': { RANK:  3, VALUE: 1.55 },
+    'SGT': { RANK:  2, VALUE: 1.20 },
+    'PVT': { RANK:  1, VALUE: 1.37 },
+    'FLG': { RANK:  0, VALUE: 0.00 }
 };
 
-Piece.resetItemHashes = function(passphrase) {
+Piece.createPieceHashcodes = function(passphrase) {
     var hashids = new Hashids(passphrase);
+    var hashes = {};
     for (var code in Piece.ITEMS) {
-        Piece.ITEMS[code].HASH = hashids.encrypt(Piece.ITEMS[code].RANK);
+        hashes[code] = hashids.encrypt(Piece.ITEMS[code].RANK);
     }
+    return hashes;
 };
 
 /**

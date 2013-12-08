@@ -195,7 +195,7 @@ function onSubmitPieces(data) {
         for (var i = 0; i < data.gamePieces.length; i++) {
             gamePieces.push({
                 position: data.gamePieces[i].position,
-                hash: gm.Piece.ITEMS[data.gamePieces[i].code].HASH
+                hash: game.pieceHashes[data.gamePieces[i].code]
             });
         }
 
@@ -249,10 +249,10 @@ function onPlayerTakesTurn(data) {
         // now, notify the clients
         if (result.success) {
             var isGameOver = game.checkGameOver();
-            var pieceInfos = false;
+            var pieceHashes = false;
             // if it's game over, we will also send the game piece information to show the player's opponent pieces
             if (isGameOver) {
-                pieceInfos = gm.Piece.ITEMS;
+                pieceHashes = game.pieceHashes;
             }
             io.sockets.in(game.id).emit(IOEvents.PLAYER_TAKES_TURN, {
                 success: true,
@@ -260,7 +260,7 @@ function onPlayerTakesTurn(data) {
                 playerId: game.currentPlayer ? game.currentPlayer.id : false,
                 result: result,
                 isGameOver: isGameOver,
-                pieceInfos: pieceInfos,
+                pieceHashes: pieceHashes,
                 noChallengeCount: game.noChallengeCount
             });
         } else {
