@@ -140,7 +140,7 @@ function onPlayAI(data) {
     // Also, the URL component is required since I have no idea
     // how to get it from the server side
     childProc.fork('app/server/ai-controller.js')
-        .on('exit', function() { console.log('AI player process has exited.'); })
+        .on('exit', function() { console.log('AI player forked process has exited.'); })
         .send(data);
 }
 

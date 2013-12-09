@@ -24,6 +24,7 @@ process.on('message', function(data) {
     // create our AI player object
     player = new AIPlayer(aiName, data.gameId);
     // once connected, let's attach our SocketIO event handlers
+    // NOTE: "connected" is not a native socket.io event
     socket.on('connected', function(data) {
 
         console.log('AI player "%s" connected to game "%s".', player.name, player.gameId);
@@ -40,7 +41,7 @@ process.on('message', function(data) {
         });
     });
     // we exit the process once the socket is disconnected
-    socket.on('disconnected', function() {
+    socket.on('disconnect', function() {
         console.log('AI player "%s" disconnected from the game "%s".', player.name, player.gameId);
         process.exit(0);
     });

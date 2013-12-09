@@ -75,20 +75,20 @@ describe('Game', function() {
     describe('setting the pieces', function() {
         var pieces = null;
         it('should not accept less than 21 pieces', function() {
-            pieces = gameModule.Game.generatePieces();
+            pieces = createGamePieces();
             pieces.pop();
             assert.throws(function() {
                 game.setPlayerPieces(game.playerA.id, pieces);
             }, Error);
         });
         it('should not accept pieces with no positions', function() {
-            pieces = gameModule.Game.generatePieces();
+            pieces = createGamePieces();
             assert.throws(function() {
                 game.setPlayerPieces(game.playerA.id, pieces);
             }, Error);
         });
         it('should accept 21 pieces', function() {
-            pieces = gameModule.Game.generatePieces();
+            pieces = createGamePieces();
             for (var i = 0; i < 21; i++) {
                 pieces[i].position = i;
             }
@@ -102,7 +102,7 @@ describe('Game', function() {
             }, Error);
         });
         it('state should be start after both players have pieces', function() {
-            pieces = gameModule.Game.generatePieces();
+            pieces = createGamePieces();
             for (var i = 45, j = 0; j < 21; i++, j++) {
                 pieces[j].position = i;
             }
@@ -190,3 +190,26 @@ describe('Game', function() {
     });
 
 });
+
+function createGamePieces() {
+    var pieces = [];
+    pieces.push(new Piece('GOA'));
+    pieces.push(new Piece('SPY'));
+    pieces.push(new Piece('SPY'));
+    pieces.push(new Piece('GEN'));
+    pieces.push(new Piece('LTG'));
+    pieces.push(new Piece('MAG'));
+    pieces.push(new Piece('BRG'));
+    pieces.push(new Piece('COL'));
+    pieces.push(new Piece('LTC'));
+    pieces.push(new Piece('MAJ'));
+    pieces.push(new Piece('CPT'));
+    pieces.push(new Piece('1LT'));
+    pieces.push(new Piece('2LT'));
+    pieces.push(new Piece('SGT'));
+    pieces.push(new Piece('FLG'));
+    for (var i = 0; i < 6; i++) {
+        pieces.push(new Piece('PVT'));
+    }
+    return pieces;
+}

@@ -1,7 +1,7 @@
 tgo.views.welcomeView = (function() {
 
     var view = new tgo.views.View();
-    var playerName, gameId;
+    var playerName, gameId, createGameButton, joinGameButton;
 
     view.templateId = 'welcome-template';
     view.init = function() {
@@ -11,8 +11,15 @@ tgo.views.welcomeView = (function() {
         // retyping his name all over again
         playerName.val(getSavedPlayerName());
 
-        $('#create-game').on('click', onCreateGameButtonClick);
-        $('#join-game').on('click', onJoinGameGameButtonClick);
+        createGameButton = $('#create-game');
+        joinGameButton = $('#join-game');
+
+        createGameButton.on('click', onCreateGameButtonClick);
+        joinGameButton.on('click', onJoinGameGameButtonClick);
+    };
+    view.enableButtons = function() {
+        createGameButton.prop('disabled', false);
+        joinGameButton.prop('disabled', false);
     };
 
     function onCreateGameButtonClick(e) {
@@ -25,7 +32,8 @@ tgo.views.welcomeView = (function() {
         view.emit(tgo.views.Events.CREATE_GAME, {
             playerName: playerName.val()
         });
-        $('#create-game').remove();
+
+        this.disabled = true;
     }
 
     function onJoinGameGameButtonClick(e) {
@@ -39,7 +47,8 @@ tgo.views.welcomeView = (function() {
             playerName: playerName.val(),
             gameId: gameId.val()
         });
-        $('#join-game').remove();
+
+        this.disabled = true;
     }
 
     function areFieldsNotEmpty() {

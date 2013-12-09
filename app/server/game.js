@@ -1,17 +1,18 @@
 // Use string utility functions
 var util = require('util');
-// Encryption
+// Encryption Class
 var Hashids = require('hashids');
 
 /**
  * @class GameDb
  * Used to track and manage games created
+ * A RAM-based database?
  */
 function GameDb() {
     // A hashset, the games created using the game ID as key
     this._cache = {};
     // Used to track the number of games added since our hash
-    // do not have a length property
+    // do not have a length property and i don't like to add it there
     this.count = 0;
 }
 
@@ -25,13 +26,13 @@ GameDb.prototype.getAllIds = function() {
 };
 
 /**
- * Get the game from the cache, null if game does not exist
+ * Get the game from the cache, throws exception if the game does not exist
  * @param  {String} gameId The game ID of the game to get
  * @return {Game}   Returns the game object
  */
 GameDb.prototype.get = function(gameId) {
     if (!this._cache[gameId]) {
-        throw new Error('Game does not exist: ' + gameId);
+        throw new Error('Game ID does not exist in the database: ' + gameId);
     }
     return this._cache[gameId];
 };
@@ -49,7 +50,7 @@ GameDb.prototype.add = function(game) {
         this._cache[game.id] = game;
         this.count++;
 
-        console.log('Game %s has been added to the game database. %d games online.', game.id, this.count);
+        console.log('Game "%s" has been added to the game database. %d games online.', game.id, this.count);
         return true;
     }
     return false;
@@ -73,7 +74,7 @@ GameDb.prototype.remove = function(gameId) {
 
 /**
  * @class       Game
- * @description The main application
+ * @description The main game application
  */
 function Game() {
     // generate the game ID
@@ -105,7 +106,7 @@ Game.prototype.createPlayer = function(playerName, isPlayerA) {
     var player = new Player(Game.uuid(), playerName);
     if (isPlayerA) {
         this.playerA = player;
-        // player A is always the first player
+        // player A is always the first player to take a turn
         this.currentPlayer = this.playerA;
     } else {
         this.playerB = player;
@@ -131,13 +132,13 @@ Game.prototype.getPlayer = function(playerId) {
  * @param {Array} pieces    The Array of GamePieces
  */
 Game.prototype.setPlayerPieces = function(playerId, pieces) {
-    // we need 21 pieces
+    // we need 21 game pieces
     if (!(pieces instanceof Array) || pieces.length != 21) {
         throw new Error('There should be 21 pieces.');
     }
 
     // we are expecting these game pieces to be just purely data
-    // so we create the objects here
+    // so we create the game piece objects here
     for (var i = 0, j = pieces.length; i < j; i++) {
         var data = pieces[i];
         pieces[i] = new Piece(data.code);
@@ -155,39 +156,6 @@ Game.prototype.setPlayerPieces = function(playerId, pieces) {
     if (this.playerA.hasPieces() && this.playerB.hasPieces()) {
         this.state = Game.States.START;
     }
-};
-
-/**
- * Decides who will win in a challenge
- * @param  {GamePiece} challenger The challenger game piece
- * @param  {GamePiece} challenged The challenged game piece
- * @return {Number}               Returns  0 for equal,
- *                                         1 if challenger wins,
- *                                        -1 if challenger loses
- */
-Game.prototype.challenge = function(challenger, challenged) {
-    // equal ranks that are not flag, both pieces are eliminated
-    if (challenger.rank == challenged.rank && challenger.rank) {
-        return 0;
-    }
-    // if challenger is a spy against anything not pvt or
-    // if challenger is pvt and challenged is spy, challenger wins
-    if (challenger.code == 'SPY' && challenged.code != 'PVT' ||
-        challenger.code == 'PVT' && challenged.code == 'SPY') {
-        return 1;
-    }
-    // if challenger is not a private and challenged is a spy or
-    // challenger is a spy but challenged is pvt, challenger loses
-    if (challenger.code != 'PVT' && challenged.code == 'SPY' ||
-        challenger.code == 'SPY' && challenged.code == 'PVT') {
-        return -1;
-    }
-    // if both flags, challenger wins
-    if (challenger.rank === 0 && challenged.rank === 0) {
-        return 1;
-    }
-    // otherwise, determine based on rank
-    return challenger.rank > challenged.rank ? 1 : challenger.rank == challenged.rank ? 0 : -1;
 };
 
 /**
@@ -209,7 +177,7 @@ Game.prototype.takeTurn = function(playerId, oldPosition, newPosition) {
 
     var player = this.getPlayer(playerId);
     var piece = player.getPiece(oldPosition);
-    var result = this.board.movePiece(player, piece, newPosition, this.challenge);
+    var result = this.board.movePiece(player, piece, newPosition, Game.challenge);
     // let's move the piece, if a valid move, then change the current player
     if (result.success) {
         this.currentPlayer = this.currentPlayer == this.playerA ? this.playerB : this.playerA;
@@ -225,11 +193,11 @@ Game.prototype.takeTurn = function(playerId, oldPosition, newPosition) {
 };
 
 /**
- * Checks if the game is over. The current player is the game winner.
+ * Checks if the game is over. The current player will be the game winner.
  * @return {Boolean}
  */
 Game.prototype.checkGameOver = function() {
-    // it will be over if teh flag has reached the end
+    // it will be over if the flag has reached the opponent's end
     // and the owner is also the current player
     if (this.board.hasFlagReachedEnd(this.currentPlayer, this.currentPlayer.id == this.playerA.id)) {
         this.state = Game.States.OVER;
@@ -247,7 +215,8 @@ Game.prototype.checkGameOver = function() {
         this.currentPlayer = this.playerA;
         return true;
     }
-    // now we'll see if the 50-move rule has been reached
+    // now we'll see if the 50-move rule has been reached since we don't want
+    // a player chase around a flag for too long
     if (this.noChallengeCount > 50) {
         this.state = Game.States.OVER;
         var valueA = this.playerA.value();
@@ -273,30 +242,36 @@ Game.uuid = function() {
 };
 
 /**
- * this is for testing only (unit testing), we generate pieces at client-side
- * although we validate them upon submition at server-side
+ * A method that decides who will win in a challenge
+ * @param  {GamePiece} challenger The challenger game piece
+ * @param  {GamePiece} challenged The challenged game piece
+ * @return {Number}               Returns  0 for equal,
+ *                                         1 if challenger wins,
+ *                                        -1 if challenger loses
  */
-Game.generatePieces = function() {
-    var pieces = [];
-    pieces.push(new Piece('GOA'));
-    pieces.push(new Piece('SPY'));
-    pieces.push(new Piece('SPY'));
-    pieces.push(new Piece('GEN'));
-    pieces.push(new Piece('LTG'));
-    pieces.push(new Piece('MAG'));
-    pieces.push(new Piece('BRG'));
-    pieces.push(new Piece('COL'));
-    pieces.push(new Piece('LTC'));
-    pieces.push(new Piece('MAJ'));
-    pieces.push(new Piece('CPT'));
-    pieces.push(new Piece('1LT'));
-    pieces.push(new Piece('2LT'));
-    pieces.push(new Piece('SGT'));
-    pieces.push(new Piece('FLG'));
-    for (var i = 0; i < 6; i++) {
-        pieces.push(new Piece('PVT'));
+Game.challenge = function(challenger, challenged) {
+    // equal ranks that are not flag, both pieces are eliminated
+    if (challenger.rank == challenged.rank && challenger.rank) {
+        return 0;
     }
-    return pieces;
+    // if challenger is a spy against anything not pvt or
+    // if challenger is pvt and challenged is spy, challenger wins
+    if (challenger.code == 'SPY' && challenged.code != 'PVT' ||
+        challenger.code == 'PVT' && challenged.code == 'SPY') {
+        return 1;
+    }
+    // if challenger is not a private and challenged is a spy or
+    // challenger is a spy but challenged is pvt, challenger loses
+    if (challenger.code != 'PVT' && challenged.code == 'SPY' ||
+        challenger.code == 'SPY' && challenged.code == 'PVT') {
+        return -1;
+    }
+    // if both flags, challenger wins
+    if (challenger.rank === 0 && challenged.rank === 0) {
+        return 1;
+    }
+    // otherwise, determine based on rank
+    return challenger.rank > challenged.rank ? 1 : challenger.rank == challenged.rank ? 0 : -1;
 };
 
 /**
@@ -331,10 +306,8 @@ Player.prototype.setPieces = function(pieces) {
     // the board checks the positioning of the pieces
     // now we check if all ranks are complete
     var allRanks = [ 'GOA', 'GEN', 'LTG', 'MAG', 'BRG', 'COL', 'LTC', 'MAJ', 'CPT', '1LT', '2LT', 'SGT', 'PVT', 'PVT', 'PVT', 'PVT', 'PVT', 'PVT', 'SPY', 'SPY', 'FLG' ];
-
     for (var i = 0, j = pieces.length; i < j; i++) {
         var index = allRanks.indexOf(pieces[i].code);
-
         if (index !== -1) {
             allRanks.splice(index, 1);
         }
@@ -379,6 +352,10 @@ Player.prototype.getFlag = function() {
     return this.flag;
 };
 
+/**
+ * computes the total value of all pieces that are on the board
+ * @return {Number} The total value of all pieces on board
+ */
 Player.prototype.value = function() {
     var value = 0;
     for (var i = 0, j = this.pieces.length; i < j; i++) {
@@ -459,7 +436,7 @@ function Board() {
 
 /**
  * Place the pieces to the board but perform validation before that
- * @param  {Array}  pieces    the game pieces
+ * @param  {Array}  pieces     the game pieces
  * @param  {Boolean} isPlayerA Flag if the pieces are for the main player or not
  */
 Board.prototype.placePieces = function(pieces, isPlayerA) {
@@ -507,17 +484,15 @@ Board.prototype.placePieces = function(pieces, isPlayerA) {
  * @param  {Player}   player            The player who moves his/her piece
  * @param  {Piece}    piece             The game piece to be moved
  * @param  {Number}   newPosition       The new position of the game piece in the board
- * @param  {Function} challengeCallback If an opponent piece is present in the target position,
- *                                      then we have a challenge and we need to determine who will remain
  * @return {Object}                     The result object which contains the ff information:
- *                                          success: if the move is successful or not
- *                                          isChallenge: if this move has a challenge
+ *                                          success:         if the move is successful or not
+ *                                          isChallenge:     if this move has a challenge
  *                                          challengeResult: the result of the challenge
- *                                                           0 - equal or both pieces are removed
- *                                                           1 - challenger won
- *                                                          -1 - challenger lost
+ *                                                            0 - equal or both pieces are removed
+ *                                                            1 - challenger won
+ *                                                           -1 - challenger lost
  */
-Board.prototype.movePiece = function(player, piece, newPosition, challengeCallback) {
+Board.prototype.movePiece = function(player, piece, newPosition) {
 
     var result = {
         // whether the move/challenge is successful
@@ -525,17 +500,12 @@ Board.prototype.movePiece = function(player, piece, newPosition, challengeCallba
         // whether the current move initiates a challenge
         isChallenge: false,
         // and if it is a challenge, what's the result (see above)
-        challengeResult: 0,
-        // and the pieces' codes involved (for testing or other purposes)
-        challenger: '',
-        challenged: ''
+        challengeResult: 0
     };
-
-    // check if the piece is actuall moving
+    // check if the piece is actually moving and to a valid position
     if (piece.position == newPosition || !this.isNewPositionValid(piece.position, newPosition)) {
         return result;
     }
-
     // check if we are moving on our own piece's position
     var newPositionPiece = this.pieces[newPosition];
     if (player.hasPiece(newPositionPiece)) {
@@ -544,18 +514,15 @@ Board.prototype.movePiece = function(player, piece, newPosition, challengeCallba
     }
 
     // ok, we can safely move the piece
-    // remove the piece from the board
     result.success = true;
-
+    // remove the piece from the board
     this.pieces[piece.position] = null;
     piece.position = -1;
 
     // if this is a challenge
     if (newPositionPiece) {
         result.isChallenge = true;
-        result.challengeResult = challengeCallback(piece, newPositionPiece);
-        result.challenger = Piece.ITEMS[piece.code].HASH;
-        result.challenged = Piece.ITEMS[newPositionPiece.code].HASH;
+        result.challengeResult = Game.challenge(piece, newPositionPiece);
 
         if (result.challengeResult === 1) {
             // since this is a challenge and you beat the newPositionPiece

@@ -66,6 +66,7 @@ function onViewCreateGame(data) {
         socket.emit(IOEvents.CREATE_GAME, data);
     } catch (err) {
         alert('The game is still preparing. Please try again in a few seconds. Thanks');
+        welcomeView.enableButtons();
     }
 }
 
@@ -81,6 +82,7 @@ function onGameCreated(data) {
         gameView.show();
     } else {
         logError(data);
+        welcomeView.enableButtons();
     }
 }
 
@@ -141,6 +143,7 @@ function onPlayerJoined(data) {
         }
     } else {
         logError(data);
+        welcomeView.enableButtons();
     }
 }
 
@@ -267,7 +270,7 @@ window.onbeforeunload = function(e) {
     if (game.hasStarted) {
         if (!e) e = window.event;
         e.cancelBubble = true;
-        e.returnValue = 'Are you sure you want to leave this current game?';
+        e.returnValue = 'Are you sure you want to leave the current game?';
         if (e.stopPropagation) {
             e.stopPropagation();
             e.preventDefault();
