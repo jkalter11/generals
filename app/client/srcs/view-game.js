@@ -9,7 +9,7 @@ tgo.views.gameView = (function() {
     var game = tgo.models.game;
     // the following are jQuery objects which represents different DOM
     // elements that will be updated upon game state changes
-    var mainMessage, playerFallenPieces, opponentFallenPieces, gameBoardBlocker,
+    var mainMessage, playerFallenPieces, opponentFallenPieces, gameBoardLocker,
         playerTurnIndicator, opponentTurnIndicator;
     // some user action buttons to
     //      submit the game pieces (submitGamePiecesButton)
@@ -27,8 +27,7 @@ tgo.views.gameView = (function() {
     function init() {
         mainMessage = $('.main-message .message-content');
         gameBoard = $('#game-board');
-        gameBoardTDs = gameBoard.find('td');
-        gameBoardBlocker = $('#game-board-overlay');
+        gameBoardLocker = $('#game-board-overlay');
         playerFallenPieces = $('#player-fallen-pieces');
         opponentFallenPieces = $('#opponent-fallen-pieces');
         playerTurnIndicator = $('.turn-indicator').not('.opponent');
@@ -38,6 +37,23 @@ tgo.views.gameView = (function() {
 
         submitGamePiecesButton = $('<button class="button submit">');
         submitGamePiecesButton.text('SUBMIT GAME PIECES');
+
+        gameBoardTDs = gameBoard.find('td');
+        // let's add html5 drag and drop support
+        gameBoardTDs.on('dragover', function(e) {
+            if (this.className.indexOf('targetable') !== -1 ||
+                this.className.indexOf('player-box-highlight') !== -1) {
+                e.preventDefault();
+            }
+        });
+        gameBoardTDs.on('drop', function(e) {
+            var td = $(this);
+            if (td.hasClass('targetable') ||
+                td.hasClass('player-box-highlight')) {
+                e.preventDefault();
+                onPlayerMovesGamePiece(td, !game.hasStarted);
+            }
+        });
 
         playAIButton = $('<button class="button submit">');
         playAIButton.text('PLAY WITH AI');
@@ -63,12 +79,12 @@ tgo.views.gameView = (function() {
         gameBoard.on('click', function(e) {
             e.stopPropagation();
             e.preventDefault();
-            playerMoveGamePiece($(e.target));
+            onPlayerMovesGamePiece($(e.target));
         });
         gameBoard.on('contextmenu', function(e) {
             e.stopPropagation();
             e.preventDefault();
-            playerMoveGamePiece($(e.target), true);
+            onPlayerMovesGamePiece($(e.target), true);
         });
         gameBoard.delegate('.game-piece', 'click', function(e) {
             e.stopPropagation();
@@ -189,19 +205,6 @@ tgo.views.gameView = (function() {
     }
 
     /**
-     * This function is called when the game object has successfully created
-     * the game pieces for the current player. We then add the game pieces
-     * to the game board.
-     */
-    function createGamePieces() {
-        var gamePieces = [];
-        for (var i = 0, j = game.pieces.length; i < j; i++) {
-            gamePieces.push(createGamePiece(game.pieces[i]));
-        }
-        addGamePiecesToBoard(gamePieces);
-    }
-
-    /**
      * Create a jQuery game piece object
      * @param  {Object} piece The game piece data
      * @return {jQuery}       The jQuery object representing the game piece
@@ -212,6 +215,34 @@ tgo.views.gameView = (function() {
         if (piece.code) {
             element.addClass('game-piece-' + piece.code);
             element.html('<span class="code">' + piece.code + '</span>');
+
+            // add html5 drag and drop support
+            element.prop('draggable', true);
+            element.on('dragstart', function(e) {
+                // NOTE: actually we don't need this but Firefox requires
+                // that we set data in order to start a drag and drop operation.. wtf...
+                e.originalEvent.dataTransfer.setData('Text', this.className);
+                e.originalEvent.dataTransfer.effectAllowed = 'move';
+                onGamePieceClicked($(this));
+            });
+            // when swapping game pieces before the game has started
+            element.on('dragover', function(e) {
+                if (!game.hasStarted) {
+                    e.preventDefault();
+                }
+            });
+            element.on('drop', function(e) {
+                if (!game.hasStarted) {
+                    var td = this.parentNode;
+                    while (td.nodeName !== 'TD') {
+                        td = td.parentNode;
+                    }
+                    td = $(td);
+                    e.preventDefault();
+                    onPlayerMovesGamePiece(td, true);
+                }
+            });
+
         } else {
             // okay, we assume this is an opponent's game piece
             // since we are not given the code/rank
@@ -219,10 +250,43 @@ tgo.views.gameView = (function() {
             // add the hashcode for this code
             // so that we can show the original piece to the opponent after the game is over
             element.data('hash', piece.hash);
+
+            // allow our drag and drop to drop at an opponent's game piece
+            element.on('dragover', function(e) {
+                if (this.parentNode.className.indexOf('targeted') !== -1) {
+                    e.preventDefault();
+                }
+            });
+            element.on('drop', function(e) {
+                var td = this.parentNode;
+                while (td.nodeName !== 'TD') {
+                    td = td.parentNode;
+                }
+                td = $(td);
+
+                if (td.hasClass('targeted')) {
+                    e.preventDefault();
+                    onPlayerMovesGamePiece(td, !game.hasStarted);
+                }
+            });
         }
         // set our initial position so it can be added in the game board UI
         element.data('init-pos', piece.position);
+
         return element;
+    }
+
+    /**
+     * This function is called when the game object has successfully created
+     * the game pieces for the current player. We then add the game pieces
+     * to the game board.
+     */
+    function createGamePieces() {
+        var gamePieces = [];
+        for (var i = 0, j = game.pieces.length; i < j; i++) {
+            gamePieces.push(createGamePiece(game.pieces[i]));
+        }
+        addGamePiecesToBoard(gamePieces);
     }
 
     /**
@@ -325,7 +389,7 @@ tgo.views.gameView = (function() {
 
     function onGamePieceClicked(gamePiece) {
         if (gamePiece.hasClass('opponent')) {
-            playerMoveGamePiece(gamePiece.parent());
+            onPlayerMovesGamePiece(gamePiece.parent());
         } else {
             onGamePieceSelected(gamePiece);
         }
@@ -334,7 +398,7 @@ tgo.views.gameView = (function() {
     /**
      * Handles the event where the user clicks a new square, opponent or the same game piece (swap when rearranging)
      */
-    function playerMoveGamePiece(newParent, swap) {
+    function onPlayerMovesGamePiece(newParent, swap) {
 
         var gamePiece = gameBoard.find('.game-piece.selected');
         if (gamePiece.length === 0) {
@@ -614,6 +678,8 @@ tgo.views.gameView = (function() {
         return deferred.done(function() {
             gamePiece.css('display', 'inline-block');
             gamePiece.removeClass('selected');
+            gamePiece.prop('draggable', false);
+            gamePiece.off();
         });
     }
 
@@ -682,9 +748,9 @@ tgo.views.gameView = (function() {
     function lockGameBoard(state) {
         state = state === undefined ? true : state;
         if (state) {
-            gameBoardBlocker.show();
+            gameBoardLocker.show();
         } else {
-            gameBoardBlocker.hide();
+            gameBoardLocker.hide();
         }
     }
 

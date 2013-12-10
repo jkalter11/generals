@@ -1,3 +1,9 @@
+/* browser fixes */
+/* safari allow drag and drop */
+[draggable=true] {
+    -khtml-user-drag: element;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -686,7 +692,7 @@ a img {
     height: 245px;
     line-height: 245px;
     text-align: center;
-    padding: 0 20px;
+    padding: 0 50px;
     background-color: rgba(0,0,0,0.75);
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -696,9 +702,7 @@ a img {
 .main-message .message-content {
     display: inline-block;
     line-height: normal;
-    font-family: 'Segoe Print', 'Comic Sans MS', Tahoma, Verdana, Arial, sans-serif;
     color: #fff;
-    text-shadow: 0 1px 3px;
     vertical-align: middle;
 }
 
@@ -713,7 +717,7 @@ a img {
     display: block;
     margin: 0 auto;
     margin-top: 10px;
-    font-size: 15px;
+    font-size: 17px;
 }
 
 .emphasize {
