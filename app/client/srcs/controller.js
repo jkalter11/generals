@@ -169,6 +169,7 @@ function onPiecesSubmitted(data) {
         if (data.isStarted) {
             if (game.isCreated) {
                 gameView.waitPlayersTurn();
+                tryFlashWindow();
             } else {
                 gameView.waitForOpponentsTurn();
             }
@@ -215,6 +216,7 @@ function onPlayerTakesTurn(data) {
                         // get the next turn
                         if (data.playerId == game.playerId) {
                             gameView.waitPlayersTurn();
+                            tryFlashWindow();
                         } else {
                             gameView.waitForOpponentsTurn();
                         }
@@ -265,6 +267,34 @@ function logError(data) {
     alert(data.error);
     console.log(data);
 }
+
+function tryFlashWindow() {
+    if (!window.focused) {
+        window.flash = window.flash || {};
+        window.flash.flag = false;
+        window.flash.timerId = setInterval(function() {
+            window.flash.flag = !window.flash.flag;
+            if (window.flash.flag) {
+                document.title = 'YOUR TURN! - Game of the Generals Online';
+            } else {
+                document.title = 'Game of the Generals Online';
+            }
+        }, 1000);
+    }
+}
+
+window.focused = true;
+window.onfocus = function() {
+    window.focused = true;
+    if (window.flash && window.flash.timerId) {
+        clearInterval(window.flash.timerId);
+        document.title = 'Game of the Generals Online';
+    }
+};
+
+window.onblur = function() {
+    window.focused = false;
+};
 
 window.onbeforeunload = function(e) {
     if (game.hasStarted) {

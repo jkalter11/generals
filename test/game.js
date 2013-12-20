@@ -6,6 +6,29 @@ describe('Game', function() {
         gameDb = new gameModule.GameDb(),
         game = new gameModule.Game();
 
+    function createGamePieces() {
+        var pieces = [];
+        pieces.push(new gameModule.Piece('GOA'));
+        pieces.push(new gameModule.Piece('SPY'));
+        pieces.push(new gameModule.Piece('SPY'));
+        pieces.push(new gameModule.Piece('GEN'));
+        pieces.push(new gameModule.Piece('LTG'));
+        pieces.push(new gameModule.Piece('MAG'));
+        pieces.push(new gameModule.Piece('BRG'));
+        pieces.push(new gameModule.Piece('COL'));
+        pieces.push(new gameModule.Piece('LTC'));
+        pieces.push(new gameModule.Piece('MAJ'));
+        pieces.push(new gameModule.Piece('CPT'));
+        pieces.push(new gameModule.Piece('1LT'));
+        pieces.push(new gameModule.Piece('2LT'));
+        pieces.push(new gameModule.Piece('SGT'));
+        pieces.push(new gameModule.Piece('FLG'));
+        for (var i = 0; i < 6; i++) {
+            pieces.push(new gameModule.Piece('PVT'));
+        }
+        return pieces;
+    }
+
     describe('in-memory games db tests', function() {
         it('should return null for non-existing games', function() {
             assert.throws(function() {
@@ -128,43 +151,43 @@ describe('Game', function() {
         it('should return 0 for GOA vs GOA', function() {
             var p1 = new gameModule.Piece('GOA'),
                 p2 = new gameModule.Piece('GOA');
-            assert(game.challenge(p1, p2) == 0);
+            assert(gameModule.Game.challenge(p1, p2) == 0);
         });
 
         it('should return 1 for GOA vs CPT', function() {
             var p1 = new gameModule.Piece('GOA'),
                 p2 = new gameModule.Piece('CPT');
-            assert(game.challenge(p1, p2) == 1);
+            assert(gameModule.Game.challenge(p1, p2) == 1);
         });
 
         it('should return -1 for GEN vs SPY', function() {
             var p1 = new gameModule.Piece('GEN'),
                 p2 = new gameModule.Piece('SPY');
-            assert(game.challenge(p1, p2) == -1);
+            assert(gameModule.Game.challenge(p1, p2) == -1);
         });
 
         it('should return 1 for FLG vs FLG, first flag wins', function() {
             var p1 = new gameModule.Piece('FLG'),
                 p2 = new gameModule.Piece('FLG');
-            assert(game.challenge(p1, p2) == 1);
+            assert(gameModule.Game.challenge(p1, p2) == 1);
         });
 
         it('should return -1 for SPY vs PVT', function() {
             var p1 = new gameModule.Piece('SPY'),
                 p2 = new gameModule.Piece('PVT');
-            assert(game.challenge(p1, p2) == -1);
+            assert(gameModule.Game.challenge(p1, p2) == -1);
         });
 
         it('should return 1 for PVT vs SPY', function() {
             var p1 = new gameModule.Piece('PVT'),
                 p2 = new gameModule.Piece('SPY');
-            assert(game.challenge(p1, p2) == 1);
+            assert(gameModule.Game.challenge(p1, p2) == 1);
         });
 
         it('should return 0 for SPY vs SPY', function() {
             var p1 = new gameModule.Piece('SPY'),
                 p2 = new gameModule.Piece('SPY');
-            assert(game.challenge(p1, p2) == 0);
+            assert(gameModule.Game.challenge(p1, p2) == 0);
         });
 
     });
@@ -190,26 +213,3 @@ describe('Game', function() {
     });
 
 });
-
-function createGamePieces() {
-    var pieces = [];
-    pieces.push(new Piece('GOA'));
-    pieces.push(new Piece('SPY'));
-    pieces.push(new Piece('SPY'));
-    pieces.push(new Piece('GEN'));
-    pieces.push(new Piece('LTG'));
-    pieces.push(new Piece('MAG'));
-    pieces.push(new Piece('BRG'));
-    pieces.push(new Piece('COL'));
-    pieces.push(new Piece('LTC'));
-    pieces.push(new Piece('MAJ'));
-    pieces.push(new Piece('CPT'));
-    pieces.push(new Piece('1LT'));
-    pieces.push(new Piece('2LT'));
-    pieces.push(new Piece('SGT'));
-    pieces.push(new Piece('FLG'));
-    for (var i = 0; i < 6; i++) {
-        pieces.push(new Piece('PVT'));
-    }
-    return pieces;
-}

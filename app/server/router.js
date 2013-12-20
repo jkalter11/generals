@@ -14,6 +14,8 @@ exports.handle = function(app, controller) {
             gameInfos.push({
                 id: game.id,
                 state: game.state,
+                started: game.started,
+                lastActivity: game.lastActivity,
                 noChallengeCount: game.noChallengeCount,
                 playerAName: game.playerA.name,
                 playerBName: game.playerB ? game.playerB.name : ''

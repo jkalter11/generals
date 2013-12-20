@@ -52,7 +52,7 @@ module.exports = {
     init: function(_io) {
         io = _io;
         // let's purge the database every 0.2 hours (12 minutes)
-        purgeGameDb(0.2);
+        setTimeout(purgeGameDb, 1000 * 60 * 60 * 0.2);
     },
 
     /**
@@ -114,6 +114,10 @@ function onCreateGame(data) {
         // let's create a game room for this game
         this.join(game.id);
 
+        // augment game stat properties
+        game.started = new Date();
+        game.lastActivity = new Date();
+
         // then we will let the client know that we are done
         // and since the player who emits this event is also
         // the only client for now, we'll talk to him/her directly
@@ -161,6 +165,8 @@ function onPlayerJoin(data) {
         game.createPlayer(data.playerName, false);
         // it looks like we are fine so, join the game room
         this.join(game.id);
+        // update last activity
+        game.lastActivity = new Date();
 
         // and emit the "joined" event in the same room to ALL clients
         io.sockets.in(game.id).emit(IOEvents.PLAYER_JOINED, {
@@ -198,6 +204,8 @@ function onSubmitPieces(data) {
                 hash: game.pieceHashes[data.gamePieces[i].code]
             });
         }
+        // update last activity
+        game.lastActivity = new Date();
 
         // we emit the IOEvents.PIECES_SUBMITTED just for notification purposes
         // of the sender and putting the sent game-pieces of the opponent
@@ -241,6 +249,9 @@ function onPlayerTakesTurn(data) {
         var game = gameDb.get(data.gameId);
         // make the move
         var result = game.takeTurn(data.playerId, data.oldPosition, data.newPosition);
+
+        // update last activity
+        game.lastActivity = new Date();
 
         // let's augment the result object with the passed positions for the opponent
         result.oldPosition = data.oldPosition;

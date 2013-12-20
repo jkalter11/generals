@@ -13,7 +13,7 @@ var IOEvents, player;
 /**
  * Handles process messages from the controller process
  * @param  {Object} data A hashset of
- *                       url    (for socket connection) and the
+ *                       url    for socket connection and the
  *                       gameId of the game to join to
  */
 process.on('message', function(data) {
@@ -254,7 +254,7 @@ function onPlayerTakesTurn(data) {
         });
 
         var socket = this;
-        // emit after "some" time so the human player can see our selection and before we move the game piece
+        // emit after "some" time so the human player can see our selection before we move the game piece
         setTimeout(function() {
             socket.emit(IOEvents.PLAYER_TAKES_TURN, {
                 gameId: player.gameId,
