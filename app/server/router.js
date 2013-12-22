@@ -14,8 +14,8 @@ exports.handle = function(app, controller) {
             gameInfos.push({
                 id: game.id,
                 state: game.state,
-                started: game.started,
-                lastActivity: game.lastActivity,
+                started: formatDateTime(game.started),
+                lastActivity: formatDateTime(game.lastActivity),
                 noChallengeCount: game.noChallengeCount,
                 playerAName: game.playerA.name,
                 playerBName: game.playerB ? game.playerB.name : ''
@@ -24,8 +24,14 @@ exports.handle = function(app, controller) {
 
         response.send({
             count: gameInfos.length,
+            serverTime: formatDateTime(new Date()),
             online: gameInfos
         });
     });
 
 };
+
+function formatDateTime(dateTime) {
+    var arr = (dateTime + '').split(' ');
+    return [arr[3], arr[1], arr[2], arr[4]].join(' ');
+}

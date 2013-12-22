@@ -52,7 +52,7 @@ module.exports = {
     init: function(_io) {
         io = _io;
         // let's purge the database every 0.2 hours (12 minutes)
-        setTimeout(purgeGameDb, 1000 * 60 * 60 * 0.2);
+        setTimeout(purgeGameDb, 1000 * 60 * 60 * 0.12);
     },
 
     /**
@@ -327,7 +327,7 @@ function emitError(socket, eventName, error) {
  * A self-executing function that cleans up our database for orphaned games
  * This will be called every @hrs
  */
-function purgeGameDb(hrs) {
+function purgeGameDb() {
     // io.sockets.manager.rooms is a hash, with the room name as a key to an array of socket IDs.
     var gameIds = [];
     for (var key in io.sockets.manager.rooms) {
@@ -349,7 +349,4 @@ function purgeGameDb(hrs) {
     }
 
     console.log('Game DB purged. Deleted %s games.', deleted);
-
-    // let's run again in the next 24 hours
-    setTimeout(function() { purgeGameDb(hrs); }, 1000 * 60 * 60 * hrs);
 }

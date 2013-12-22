@@ -51,7 +51,3 @@ This is the ONLINE version of that game.
 #### Who Wins:
 - The player who captured the opponent's flag
 - The player whose flag reaches the opponent's first row (be warned that the opponent can still capture the flag since the opponent is given one move after the player placed the flag to the other end)
-
-
--------------------------
-by Marjun Tacder (redcat)
