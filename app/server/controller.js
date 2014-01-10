@@ -52,7 +52,7 @@ module.exports = {
     init: function(_io) {
         io = _io;
         // let's purge the database every 0.2 hours (12 minutes)
-        setTimeout(purgeGameDb, 1000 * 60 * 60 * 0.12);
+        setInterval(purgeGameDb, 1000 * 60 * 60 * 0.12);
     },
 
     /**

@@ -238,7 +238,7 @@ Game.prototype.checkGameOver = function() {
  * @return {String} The ID generated
  */
 Game.uuid = function() {
-    return ('00000' + (Math.random() * Math.pow(36, 5) << 0).toString(36)).substr(-5);
+    return ('00000' + (Math.random() * Math.pow(36, 5) << 0).toString(36)).substr(-5).toUpperCase();
 };
 
 /**

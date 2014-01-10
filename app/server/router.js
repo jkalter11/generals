@@ -18,14 +18,15 @@ exports.handle = function(app, controller) {
                 lastActivity: formatDateTime(game.lastActivity),
                 noChallengeCount: game.noChallengeCount,
                 playerAName: game.playerA.name,
-                playerBName: game.playerB ? game.playerB.name : ''
+                playerBName: game.playerB ? game.playerB.name : '',
+                winner: game.currentPlayer ? game.currentPlayer.name : '[draw]'
             });
         }
 
         response.send({
-            count: gameInfos.length,
-            serverTime: formatDateTime(new Date()),
-            online: gameInfos
+            'Games since last GC': gameInfos.length,
+            'Server Date and Time': formatDateTime(new Date()),
+            'Games Online': gameInfos
         });
     });
 
