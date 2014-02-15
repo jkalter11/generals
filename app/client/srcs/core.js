@@ -1,4 +1,5 @@
 window.tgo = {
+    appName: 'Game of The Generals',
     models: {},
     views: {}
 };

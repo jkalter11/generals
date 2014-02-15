@@ -292,7 +292,7 @@ a img {
 /* content styles */
 
 .content {
-    padding-top: 30px;
+    padding-top: 20px;
     padding-bottom: 100px;
     background-color: #3498db;
     border-bottom: 1px solid #2980b9;
@@ -433,7 +433,7 @@ a img {
     margin: 0 auto;
     padding: 0 5px;
     width: 670px;
-    min-height: 51px;
+    min-height: 55px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     border-radius: 5px;
@@ -560,17 +560,17 @@ a img {
 /* game piece styles */
 
 .game-piece {
-    height: 42px;
-    width: 62px;
+    height: 47px;
+    width: 67px;
     margin: 0 auto;
     background-color: #ddd;
-    border: 2px solid #777;
-    border-radius: 4px;
+    border: 1px outset #999;
+    border-radius: 6px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     background-repeat: no-repeat;
     background-position: 22px center;
-    background-size: 28px 28px;
+    background-size: 32px 32px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -756,7 +756,7 @@ a img {
 
 .sidebar-content h4 {
     background-color: #2980b9;
-    color: #ddd;
+    color: #fff;
     margin-bottom: 3px;
     padding: 2px 5px;
     font-size: 15px;
@@ -835,4 +835,17 @@ a img {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     border-radius: 5px;
+}
+
+.notice {
+    text-align: center;
+    font-size: 13px;
+    padding: 5px 0;
+    background-color: red;
+    color: #ddd;
+}
+
+.notice .highlight {
+    font-weight: bold;
+    color: #fff;
 }

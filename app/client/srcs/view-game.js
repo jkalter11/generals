@@ -597,6 +597,7 @@ tgo.views.gameView = (function() {
 
     function onOpponentGamePieceSelected(position) {
         clearSelectionStyles();
+        opponentTurnIndicator.addClass('active');
         var gamePiece = gameBoard.find('td[data-pos="' + position + '"] .game-piece');
         gamePiece.addClass('selected');
         highlightPossibleMoves(gamePiece);

@@ -23,7 +23,7 @@ socket.on('connected', function(data) {
     // let's get the event names from the server
     IOEvents = data;
 
-    // now let's attach all our IO events
+    // now let's attach all our Socket.IO events
     socket.on(IOEvents.GAME_CREATED, onGameCreated);
     socket.on(IOEvents.PLAYER_JOINED, onPlayerJoined);
     socket.on(IOEvents.PIECES_SUBMITTED, onPiecesSubmitted);
@@ -65,14 +65,14 @@ function onViewCreateGame(data) {
     try {
         socket.emit(IOEvents.CREATE_GAME, data);
     } catch (err) {
-        alert('The game is still preparing. Please try again in a few seconds. Thanks');
+        alert('The game is still preparing. Please try again in a few seconds. Thanks!');
         welcomeView.enableButtons();
     }
 }
 
 /**
  * Source:  Socket.IO
- * Handles: When the server says we have created a game
+ * Handles: When the server says we have created a new game
  * Data:    success, gameId, playerId, playerName
  */
 function onGameCreated(data) {
@@ -124,6 +124,7 @@ function onPlayerJoined(data) {
                 gameView.createGamePieces();
                 // we have someone to talk to now
                 chatView.init();
+                onSendChatMessage(data.playerName + ' has joined the game.', true);
             });
         } else {
             // we are joining this existing game
@@ -138,6 +139,7 @@ function onPlayerJoined(data) {
                     gameView.createGamePieces();
                     // we have someone to talk to now
                     chatView.init();
+                    onSendChatMessage(data.opponentName + ' has joined the game.', true);
                 });
             });
         }
@@ -165,12 +167,16 @@ function onPiecesSubmitted(data) {
     if (data.success) {
         game.hasStarted = data.isStarted;
         gameView.gamePiecesSubmitted(data.playerId, data.gamePieces, data.isStarted);
+        onSendChatMessage((data.playerId == game.playerId ? game.playerName : game.opponentName) + ' has submitted his/her game pieces.', true);
         // if the game has started, wait for the first player's move
         if (data.isStarted) {
+            onSendChatMessage('Game has officially started!', true);
             if (game.isCreated) {
+                onSendChatMessage(game.playerName + '\'s turn.', true);
                 gameView.waitPlayersTurn();
                 tryFlashWindow();
             } else {
+                onSendChatMessage(game.opponentName + '\'s turn.', true);
                 gameView.waitForOpponentsTurn();
             }
         }
@@ -212,12 +218,19 @@ function onPlayerTakesTurn(data) {
                         // the current player is the winner
                         gameView.showGameOver(data);
                         game.hasStarted = false;
+                        if (data.playerId) {
+                            onSendChatMessage('GAME OVER! ' + (data.playerId == game.playerId ? game.playerName : game.opponentName) + ' WON THE GAME!', true);
+                        } else {
+                            onSendChatMessage('GAME OVER! This bout is declared a DRAW!', true);
+                        }
                     } else {
                         // get the next turn
                         if (data.playerId == game.playerId) {
+                            onSendChatMessage(game.opponentName + ' has taken his/her move. ' + game.playerName + '\'s turn.', true);
                             gameView.waitPlayersTurn();
                             tryFlashWindow();
                         } else {
+                            onSendChatMessage(game.playerName + ' has taken his/her move. ' + game.opponentName + '\'s turn.', true);
                             gameView.waitForOpponentsTurn();
                         }
                     }
@@ -246,9 +259,10 @@ function onPlayerLeft() {
  * Source:  View
  * Handles: When a user chats a message
  */
-function onSendChatMessage(message) {
+function onSendChatMessage(message, isArbiter) {
     socket.emit(IOEvents.CHAT_MESSAGE, {
         gameId: game.id,
+        isArbiter: !!isArbiter,
         playerId: game.playerId,
         message: message
     });
@@ -260,7 +274,11 @@ function onSendChatMessage(message) {
  * data:    gameId, playerId, message
  */
 function onRecieveChatMessage(data) {
-    chatView.addMessage(data.playerId == game.playerId ? game.playerName : game.opponentName, data.message);
+    if (data.isArbiter) {
+        chatView.addMessage('<i>ARBITER</i>', data.message);
+    } else {
+        chatView.addMessage(data.playerId == game.playerId ? game.playerName : game.opponentName, data.message);
+    }
 }
 
 function logError(data) {
@@ -277,7 +295,7 @@ function tryFlashWindow() {
             if (window.flash.flag) {
                 document.title = 'YOUR TURN! - Game of the Generals Online';
             } else {
-                document.title = 'Game of the Generals Online';
+                document.title = tgo.appName;
             }
         }, 1000);
     }
@@ -288,14 +306,12 @@ window.onfocus = function() {
     window.focused = true;
     if (window.flash && window.flash.timerId) {
         clearInterval(window.flash.timerId);
-        document.title = 'Game of the Generals Online';
+        document.title = tgo.appName;
     }
 };
-
 window.onblur = function() {
     window.focused = false;
 };
-
 window.onbeforeunload = function(e) {
     if (game.hasStarted) {
         if (!e) e = window.event;
