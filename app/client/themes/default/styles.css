@@ -836,16 +836,3 @@ a img {
     box-sizing: border-box;
     border-radius: 5px;
 }
-
-.notice {
-    text-align: center;
-    font-size: 13px;
-    padding: 5px 0;
-    background-color: red;
-    color: #ddd;
-}
-
-.notice .highlight {
-    font-weight: bold;
-    color: #fff;
-}

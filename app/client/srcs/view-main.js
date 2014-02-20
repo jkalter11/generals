@@ -1,4 +1,4 @@
-$(function() {
+function prepareGame() {
     // first, remove our javascript notice
     $('.javascript-notice-container').remove();
     $('body')
@@ -10,7 +10,7 @@ $(function() {
             e.returnValue = false;
             window.open(this.href);
         });
-});
+}
 
 /**
  * The name of view events that will be published and subscribed to
