@@ -327,3 +327,5 @@ function startGame() {
     };
 
 }
+
+startGame();
