@@ -10,6 +10,36 @@ function prepareGame() {
             e.returnValue = false;
             window.open(this.href);
         });
+
+    function getStats() {
+
+        $.get('/stats', function(response) {
+
+            var gameInfos = response['Games Online'];
+            var gameInfoTexts = [];
+
+            for (var i = 0; i < gameInfos.length; i++) {
+
+                var gameInfo = gameInfos[i];
+                var gameID = gameInfo.id;
+                var playerA = gameInfo.playerAName;
+                var playerB = gameInfo.playerBName;
+
+                if (!playerB) playerB = '(OPEN)';
+
+                gameInfoTexts.push('<span class="game-info">' + gameID + ' - ' + playerA + ' vs ' + playerB + '</span>');
+
+            }
+
+            $('#games-online-count').html(gameInfos.length);
+            $('#games-online').html(gameInfoTexts.join(' '));
+
+        });
+
+        setTimeout(getStats, 10000);
+    }
+
+    getStats();
 }
 
 /**

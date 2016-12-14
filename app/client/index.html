@@ -28,7 +28,7 @@
             G<small>ENERALS</small>
         </a>
         <div class="social-links">
-            <a href="http://mttacder13.blogspot.com/" class="blogger" title="View more freebies at my blog"></a>
+            <a href="http://riding-coder.blogspot.com/" class="blogger" title="View more freebies at my blog"></a>
             <a href="https://www.facebook.com/pages/The-Generals-Online/464208583699184" class="facebook" title="Like us at facebook"></a>
             <a href="https://plus.google.com/111767637838040294806" class="google-plus" title="Show us some love at Google Plus"></a>
             <a href="https://twitter.com/share?url=https%3A%2F%2Fgenerals.herokuapp.com&via=mttacder13&hashtags=the-generals-online" class="twitter" title="Tweet us"></a>
@@ -41,6 +41,26 @@
     <div class="container"></div>
 </div>
 <div class="footer">
+    <div class="container">
+        <br>
+        <h3>Games Online (<span id="games-online-count">0</span>):</h3>
+        <style type="text/css">
+            .game-info {
+                display: inline-block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                background-color: #000;
+                color: #fff;
+                text-shadow: none;
+                margin-right: 5px;
+                margin-bottom: 5px;
+                padding: 1px 5px;
+                border-radius: 5px;
+            }
+        </style>
+        <p id="games-online" style="font-family: Consolas, monospace; font-weight: bold; border-bottom: 1px solid #aaa; padding-bottom: 20px;"></p>
+    </div>
     <div class="container">
         <div class="block">
             <h3>About Game of the Generals</h3>
@@ -78,7 +98,7 @@
             <h3>About the Author</h3>
             <img src="themes/author.jpg" alt="Marjun T. Tacder" title="Marjun T. Tacder">
             <p>I am a software engineer, currently working for a US-based, start-up company. I have been working on desktop, web and mobile software development for the last 5 years as of this writing (year 2013).</p>
-            <p>I consider coding as a day job and a past time. I like to play video games, the guitar (I'm a former band member) among others. I like to build products that I can personally use and enjoy then share them freely online like <a href="http://mttacder13.blogspot.com/2011/12/free-tong-its-for-windows-pc.html">Tong-Its</a>, <a href="http://mttacder13.blogspot.com/2011/10/lyricist-version-2000-audio-player-that.html">Lyricist</a>, this game, among others.</p>
+            <p>I consider coding as a day job and a past time. I like to play video games, the guitar (I'm a former band member) among others. I like to build products that I can personally use and enjoy then share them freely online like <a href="http://riding-coder.blogspot.com/2011/12/free-tong-its-for-windows-pc.html">Tong-Its</a>, <a href="http://riding-coder.blogspot.com/2011/10/lyricist-version-2000-audio-player-that.html">Lyricist</a>, this game, among others.</p>
             <p>Oh, and I have <a href="http://en.wikipedia.org/wiki/Mitral_valve_prolapse">Mitral Valve Prolapse</a> with the ever common anxiety issues that goes with it which most people don't understand. I don't think people should hide if they have this condition and pretend that they don't have it.</p>
         </div>
     </div>
@@ -180,6 +200,6 @@
 </script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<!--SCRIPTS--><!--SCRIPTS END-->
+<!--SCRIPTS--><script src="/srcs/core.js"></script><script src="/srcs/view-main.js"></script><script src="/srcs/view-welcome.js"></script><script src="/srcs/view-game.js"></script><script src="/srcs/view-chat.js"></script><script src="/srcs/controller.js"></script><!--SCRIPTS END-->
 </body>
 </html>

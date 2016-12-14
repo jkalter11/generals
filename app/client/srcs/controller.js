@@ -174,11 +174,9 @@ function startGame() {
             if (data.isStarted) {
                 onSendChatMessage('Game has officially started!', true);
                 if (game.isCreated) {
-                    onSendChatMessage(game.playerName + '\'s turn.', true);
                     gameView.waitPlayersTurn();
                     tryFlashWindow();
                 } else {
-                    onSendChatMessage(game.opponentName + '\'s turn.', true);
                     gameView.waitForOpponentsTurn();
                 }
             }
@@ -228,11 +226,9 @@ function startGame() {
                         } else {
                             // get the next turn
                             if (data.playerId == game.playerId) {
-                                onSendChatMessage(game.opponentName + ' has taken his/her move. ' + game.playerName + '\'s turn.', true);
                                 gameView.waitPlayersTurn();
                                 tryFlashWindow();
                             } else {
-                                onSendChatMessage(game.playerName + ' has taken his/her move. ' + game.opponentName + '\'s turn.', true);
                                 gameView.waitForOpponentsTurn();
                             }
                         }

@@ -99,9 +99,9 @@ tgo.views.gameView = (function() {
         if (game.isCreated) {
             showMainMessage(
                 'Welcome <span class="emphasize">' + game.playerName +
-                '</span> to the <span class="emphasize">GAME OF THE GENERALS ONLINE</span>! ' +
-                'Your GAME ID is <span class="emphasize">' + game.id + '</span>. Send this ID to your friend (opponent) ' +
-                'to play with a human player OR if you want to play with an AI Player to practice first, then ' +
+                '</span> to the<br><span class="emphasize">GAME OF THE GENERALS ONLINE</span>! ' +
+                '<br><br>Your GAME ID is <span class="emphasize" style="font-family: Consolas, monospace;">' + game.id + '</span>.<br><br>Send this ID to your friend (opponent) ' +
+                'to play with a human player<br>OR<br>if you want to play with an AI Player to practice first, then ' +
                 'click on the PLAY WITH AI button.')
             .done(function() {
                 mainMessage.append(playAIButton);
